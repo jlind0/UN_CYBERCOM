@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { dynamic } from 'tuono';
 
 interface MyData {
@@ -9,7 +10,7 @@ interface AppProps {
 }
 
 const LazyComponent = dynamic(() => import('../components/CybercomView'), {
-  ssr: true,
+  ssr: false,
   loading: () => <div>Loading...</div>,
 });
 
@@ -17,7 +18,9 @@ function App({ data }: AppProps) {
   return (
     <div>
       <h1>Welcome</h1>
-      {typeof window !== 'undefined' && <LazyComponent data={data} />}
+      <Suspense>
+        <LazyComponent data={data} />
+      </Suspense>
     </div>
   );
 }
