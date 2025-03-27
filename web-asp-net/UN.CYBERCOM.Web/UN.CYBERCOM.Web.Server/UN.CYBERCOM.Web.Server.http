@@ -1,0 +1,6 @@
+@UN.CYBERCOM.Web.Server_HostAddress = http://localhost:5023
+
+GET {{UN.CYBERCOM.Web.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
