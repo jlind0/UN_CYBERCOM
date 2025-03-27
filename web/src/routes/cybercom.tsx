@@ -1,21 +1,25 @@
-import { dynamic } from 'tuono'
-import type { TuonoRouteProps } from 'tuono'
-import type { JSX } from 'react'
+import { dynamic } from 'tuono';
 
-const LazyComponent = dynamic(() => import('../components/CybercomView'), {
-  ssr: false,
-  loading: () => <div>Loading...</div>,
-})
-interface SubscriptionData {
+interface MyData {
   subscription_id: bigint;
 }
-export default function CybercomPage({
-  data,
-}: TuonoRouteProps<SubscriptionData>): JSX.Element {
+
+interface AppProps {
+  data: MyData;
+}
+
+const LazyComponent = dynamic(() => import('../components/CybercomView'), {
+  ssr: true,
+  loading: () => <div>Loading...</div>,
+});
+
+function App({ data }: AppProps) {
   return (
     <div>
       <h1>Welcome</h1>
-      <LazyComponent data={data} />
+      {typeof window !== 'undefined' && <LazyComponent data={data} />}
     </div>
-  )
+  );
 }
+
+export default App;
