@@ -9,7 +9,7 @@ interface SubscriptionData {
   interface SubscriptionProps {
     data: SubscriptionData
   }
-  export default function CybercomView(
+export default function CybercomView(
     {data } : SubscriptionProps): JSX.Element {
         const [contractAddress, setContractAddress] = useState<string | undefined>();
   const [deploying, setDeploying] = useState<boolean>(false);

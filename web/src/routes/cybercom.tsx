@@ -5,7 +5,7 @@ const LazyComponent = dynamic(() => import('../components/CybercomView'), {
   loading: () => <div>Loading...</div>,
 })
 
-export default function CybercomPage(data : any) {
+export default function CybercomPage({data} : any) {
   return (
     <div>
       <h1>Welcome</h1>
