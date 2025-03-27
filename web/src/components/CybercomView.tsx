@@ -46,7 +46,7 @@ export default function CybercomView({ data }: SubscriptionProps): JSX.Element {
   const handleSetupProvider = async () => {
     if (window.ethereum) {
       // Use the BrowserProvider from MetaMask for a signer-enabled provider
-      //provider= new ethers.BrowserProvider(window.ethereum);
+      provider= new ethers.BrowserProvider(window.ethereum);
       //await prov.send("eth_requestAccounts", []);
       /*var sign = await prov.getSigner(0);
       try {
