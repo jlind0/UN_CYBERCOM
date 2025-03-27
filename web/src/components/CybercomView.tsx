@@ -44,7 +44,7 @@ const deployContract = async(subscription_id: ethers.BigNumberish): Promise<stri
   const handleSetupProvider = async () => {
     if (window.ethereum) {
       // Use the BrowserProvider from MetaMask for a signer-enabled provider
-      //const prov = new ethers.BrowserProvider(window.ethereum);
+      const prov = new ethers.BrowserProvider(window.ethereum);
       //await prov.send("eth_requestAccounts", []);
       /*var sign = await prov.getSigner(0);
       try {
@@ -61,7 +61,7 @@ const deployContract = async(subscription_id: ethers.BigNumberish): Promise<stri
   };
     return (
         <div>
-     
+        
         {data?.subscription_id && isConnected &&(
           <>
             <title>{data.subscription_id.toString()}</title>
