@@ -11,9 +11,9 @@ interface AddMembershipProposalParameter {
 }
 const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
-        <button onClick={() => store.handleSetupProvider()} disabled={store.connecting}>
+        <CButton color="primary" onClick={() => store.handleSetupProvider()} disabled={store.connecting}>
             {store.connecting ? 'Connecting Wallet...' : 'Connect Wallet'}
-        </button>
+        </CButton>
     </div>
 ));
 const VotingParametersView = observer(({ store }: CybercomStoreParameter) => (
@@ -99,9 +99,9 @@ const CouncilsView = observer(({ store }: CybercomStoreParameter) => (
 const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
         <p>Contract Address: {store.cybercomContract}</p>
-        <button onClick={() => store.handleLoadContract()} disabled={store.isLoading}>
+        <CButton color="primary" onClick={() => store.handleLoadContract()} disabled={store.isLoading}>
             {store.isLoading ? 'Loading contract...' : 'Load Contract'}
-        </button>
+        </CButton>
         {store.contract && (
             <div>
                 <AddMemberProposalView addStore={store.addMembershipProposal}/>
@@ -204,9 +204,9 @@ const AddMemberProposalView = observer(({ addStore }: AddMembershipProposalParam
 ));
 const ContractNotLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
-        <button onClick={() => store.handleDeployContract()} disabled={store.deploying}>
+        <CButton color="primary" onClick={() => store.handleDeployContract()} disabled={store.deploying}>
             {store.deploying ? 'Deploying Contract...' : 'Deploy Contract'}
-        </button>
+        </CButton>
         <p>{store.activity}</p>
     </div>
 ));
