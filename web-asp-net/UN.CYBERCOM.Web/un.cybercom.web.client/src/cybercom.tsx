@@ -1,7 +1,7 @@
 import React from 'react';
 import { CybercomStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
-import { CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
+import { CCard, CCardBody, CCardHeader, CCol, CRow, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
@@ -66,6 +66,32 @@ const NationsView = observer(({ store }: CybercomStoreParameter) => (
         </CTableBody>
     </CTable>
 ));
+const CouncilsView = observer(({ store }: CybercomStoreParameter) => (
+    <CTable>
+        <CTableHead>
+            <CTableRow>
+                <CTableHeaderCell scope="col">Council Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Council Role</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Groups</CTableHeaderCell>
+            </CTableRow>
+        </CTableHead>
+        <CTableBody>
+            {store.councils.map((council, index) => (
+                <CTableRow key={index}>
+                    <CTableDataCell>{council.name}</CTableDataCell>
+                    <CTableDataCell>{council.role}</CTableDataCell>
+                    <CTableDataCell>
+                        {council.groups.map((group, groupIndex) => (
+                            <div key={groupIndex}>
+                                {group.name} {group.id && `(ID: ${group.id.toString()})`}
+                            </div>
+                        ))}
+                    </CTableDataCell>
+                </CTableRow>
+            ))}
+        </CTableBody>
+    </CTable>
+));
 const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
         <p>Contract Address: {store.cybercomContract}</p>
@@ -77,7 +103,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                 <CTabs activeItemKey="addresses">
                     <CTabList variant="tabs">
                         <CTab itemKey="addresses">Addresses</CTab>
+                        <CTab itemKey="councils">Councils</CTab>
                         <CTab itemKey="nations">Nations</CTab>
+
                         <CTab itemKey="voting_parameters">Voting Parameters</CTab>
                         
                     </CTabList>
@@ -94,6 +122,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         </CTabPanel>
                         <CTabPanel className="p-3" itemKey="nations">
                             <NationsView store={store} />
+                        </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="councils">
+                            <CouncilsView store={store} />
                         </CTabPanel>
                     </CTabContent>
                 </CTabs>
