@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
-        working-directory: web-asp-net/UN.CYBERCOM.Web/un.cybercom.web.client
+          working-directory: web-asp-net/UN.CYBERCOM.Web/un.cybercom.web.client
 
       - name: npm install, build, and test
         run: |
