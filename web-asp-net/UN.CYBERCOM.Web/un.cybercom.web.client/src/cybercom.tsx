@@ -1,5 +1,5 @@
 import React from 'react';
-import { CybercomStore } from './cybercom.store.ts';
+import { CybercomStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
 import { CTab, CTabContent, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
