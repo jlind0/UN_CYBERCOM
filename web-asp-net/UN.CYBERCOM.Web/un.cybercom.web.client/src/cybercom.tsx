@@ -13,7 +13,43 @@ const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
         </button>
     </div>
 ));
-
+const VotingParametersView = observer(({ store }: CybercomStoreParameter) => (
+    <div>
+        <h3>Council Voting Parameters</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Council Name</th>
+                    <th>Randomize By Group</th>
+                    <th>Randomize By Member</th>
+                    <th>Output Count For Group</th>
+                    <th>Output Count For Member</th>
+                    <th>Vote Denominator</th>
+                    <th>Vote Numerator</th>
+                    <th>Sum Denominator</th>
+                    <th>Sum Numerator</th>
+                    <th>Average Votes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {store.votingParameters.map((vp, index) => (
+                    <tr key={index}>
+                        <td>{vp.councilName}</td>
+                        <td>{vp.randomizeByGroup?.toString()}</td>
+                        <td>{vp.randomizeByMember?.toString()}</td>
+                        <td>{vp.outputCountForGroup?.toString()}</td>
+                        <td>{vp.outputCountForMember?.toString()}</td>
+                        <td>{vp.voteDenominator?.toString()}</td>
+                        <td>{vp.voteNumerator?.toString()}</td>
+                        <td>{vp.sumDenominator?.toString()}</td>
+                        <td>{vp.sumNumerator?.toString()}</td>
+                        <td>{vp.avgVotes?.toString()}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+));
 const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
         <p>Contract Address: {store.cybercomContract}</p>
@@ -27,6 +63,7 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                 <p>Council Management: {store.contractAddresses.councilManagementAddress}</p>
                 <p>Membership Manager: {store.contractAddresses.membershipManagerAddress}</p>
                 <p>Membership Removal: {store.contractAddresses.membershipRemovalAddress}</p>
+                <VotingParametersView store={store}/>
             </div>
         )}
     </div>

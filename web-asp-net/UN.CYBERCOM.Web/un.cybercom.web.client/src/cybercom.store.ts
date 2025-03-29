@@ -14,6 +14,35 @@ import { MembershipManagement } from './typechain/contracts/CybercomDAO';
 
 const subscriptionId = BigInt(import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID);
 let initialCybercomContract = import.meta.env.VITE_CYBERCOM_DAO_CONTRACT;
+export class VotingParameters {
+    randomizeByGroup: boolean | undefined = undefined;
+    randomizeByMember: boolean | undefined = undefined;
+    outputCountForGroup: bigint | undefined = undefined;
+    outputCountForMember: bigint | undefined = undefined;
+    voteDenominator: bigint | undefined = undefined;
+    voteNumerator: bigint | undefined = undefined;
+    sumDenominator: bigint | undefined = undefined;
+    sumNumerator: bigint | undefined = undefined;
+    avgVotes: boolean | undefined = undefined;
+    councilName: string | undefined = undefined;
+    constructor() {
+        makeAutoObservable(this);
+    }
+    updateObj(name: string, obj: MembershipManagement.VotingParametersStructOutput) {
+        runInAction(() => {
+            this.randomizeByGroup = obj.randomizeByGroup;
+            this.randomizeByMember = obj.randomizeByMember;
+            this.outputCountForGroup = obj.outputCountForGroup;
+            this.outputCountForMember = obj.outputCountForMember;
+            this.voteDenominator = obj.voteDenominator;
+            this.voteNumerator = obj.voteNumerator;
+            this.sumDenominator = obj.sumDenominator;
+            this.sumNumerator = obj.sumNumerator;
+            this.avgVotes = obj.avgVotes;
+            this.councilName = name;
+        });
+    }
+}
 export class ContractAddresses {
     daoAddress: string | undefined = undefined;
     votingAddress: string | undefined = undefined;
@@ -48,7 +77,7 @@ export class CybercomStore {
     signer: ethers.JsonRpcSigner | undefined = undefined;
     activity: string = '';
     cybercomContract: string | undefined = initialCybercomContract;
-
+    votingParameters: VotingParameters[] = [];
     constructor() {
         makeAutoObservable(this);
     }
@@ -183,6 +212,17 @@ export class CybercomStore {
             });
             const addresses = await cybercom.getContractAddresses();
             this.contractAddresses.updateObj(addresses);
+            const councilManagementContract = CouncilManager__factory.connect(addresses.councilManagementAddress, this.signer);
+            const councils = await councilManagementContract.getCouncils();
+            runInAction(() => {
+                this.votingParameters.length = 0;
+                councils.forEach((c) => {
+                    const vp = new VotingParameters();
+                    vp.updateObj(c.name, c.votingParameters);
+                    this.votingParameters.push(vp);
+                });
+            });
+           
         } finally {
             runInAction(() => {
                 this.isLoading = false;
