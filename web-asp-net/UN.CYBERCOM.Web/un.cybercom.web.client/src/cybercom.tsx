@@ -1,7 +1,7 @@
 import React from 'react';
 import { CybercomStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
-import { CTab, CTabContent, CTabList, CTabPanel, CTabs } from '@coreui/react'
+import { CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
@@ -15,41 +15,56 @@ const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
     </div>
 ));
 const VotingParametersView = observer(({ store }: CybercomStoreParameter) => (
-    <div>
-        <h3>Council Voting Parameters</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Council Name</th>
-                    <th>Randomize By Group</th>
-                    <th>Randomize By Member</th>
-                    <th>Output Count For Group</th>
-                    <th>Output Count For Member</th>
-                    <th>Vote Denominator</th>
-                    <th>Vote Numerator</th>
-                    <th>Sum Denominator</th>
-                    <th>Sum Numerator</th>
-                    <th>Average Votes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {store.votingParameters.map((vp, index) => (
-                    <tr key={index}>
-                        <td>{vp.councilName}</td>
-                        <td>{vp.randomizeByGroup?.toString()}</td>
-                        <td>{vp.randomizeByMember?.toString()}</td>
-                        <td>{vp.outputCountForGroup?.toString()}</td>
-                        <td>{vp.outputCountForMember?.toString()}</td>
-                        <td>{vp.voteDenominator?.toString()}</td>
-                        <td>{vp.voteNumerator?.toString()}</td>
-                        <td>{vp.sumDenominator?.toString()}</td>
-                        <td>{vp.sumNumerator?.toString()}</td>
-                        <td>{vp.avgVotes?.toString()}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
+    <CTable>
+        <CTableHead>
+            <CTableRow>
+                <CTableHeaderCell scope="col">Council Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Randomize By Group</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Randomize By Member</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Output Count For Group</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Output Count For Member</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Vote Denominator</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Vote Numerator</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Sum Denominator</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Sum Numerator</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Average Votes</CTableHeaderCell>
+            </CTableRow>
+        </CTableHead>
+        <CTableBody>
+            {store.votingParameters.map((vp, index) => (
+                <CTableRow key={index}>
+                    <CTableDataCell>{vp.councilName}</CTableDataCell>
+                    <CTableDataCell>{vp.randomizeByGroup?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.randomizeByMember?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.outputCountForGroup?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.outputCountForMember?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.voteDenominator?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.voteNumerator?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.sumDenominator?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.sumNumerator?.toString()}</CTableDataCell>
+                    <CTableDataCell>{vp.avgVotes?.toString()}</CTableDataCell>
+                </CTableRow>
+            ))}
+        </CTableBody>
+    </CTable>
+));
+const NationsView = observer(({ store }: CybercomStoreParameter) => (
+    <CTable>
+        <CTableHead>
+            <CTableRow>
+                <CTableHeaderCell scope="col">Nation Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Nation Id</CTableHeaderCell>
+            </CTableRow>
+        </CTableHead>
+        <CTableBody>
+            {store.nations.map((vp, index) => (
+                <CTableRow key={index}>
+                    <CTableDataCell>{vp.name}</CTableDataCell>
+                    <CTableDataCell>{vp.id}</CTableDataCell>
+                </CTableRow>
+            ))}
+        </CTableBody>
+    </CTable>
 ));
 const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
@@ -62,7 +77,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                 <CTabs activeItemKey="addresses">
                     <CTabList variant="tabs">
                         <CTab itemKey="addresses">Addresses</CTab>
+                        <CTab itemKey="nations">Nations</CTab>
                         <CTab itemKey="voting_parameters">Voting Parameters</CTab>
+                        
                     </CTabList>
                     <CTabContent>
                         <CTabPanel className="p-3" itemKey="addresses">
@@ -74,6 +91,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         </CTabPanel>
                         <CTabPanel className="p-3" itemKey="voting_parameters">
                             <VotingParametersView store={store} />
+                        </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="nations">
+                            <NationsView store={store} />
                         </CTabPanel>
                     </CTabContent>
                 </CTabs>

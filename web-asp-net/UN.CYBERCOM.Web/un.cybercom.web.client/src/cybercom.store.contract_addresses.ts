@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { MembershipManagement } from './typechain/contracts/CybercomDAO';
-export class ContractAddresses {
+export class ContractAddressesViewModel {
     daoAddress: string | undefined = undefined;
     votingAddress: string | undefined = undefined;
     councilManagementAddress: string | undefined = undefined;

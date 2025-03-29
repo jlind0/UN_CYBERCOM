@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { MembershipManagement } from './typechain/contracts/CybercomDAO';
-export class VotingParameters {
+export class VotingParametersViewModel {
     randomizeByGroup: boolean | undefined = undefined;
     randomizeByMember: boolean | undefined = undefined;
     outputCountForGroup: bigint | undefined = undefined;
