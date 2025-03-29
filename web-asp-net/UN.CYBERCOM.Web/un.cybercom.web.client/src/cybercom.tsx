@@ -1,7 +1,6 @@
-import React from 'react';
 import { CybercomStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
-import { CCard, CCardBody, CCardHeader, CCol, CRow, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
+import { CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {

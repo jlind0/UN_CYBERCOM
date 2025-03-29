@@ -1,5 +1,4 @@
-// Home.tsx
-import React from 'react';
+
 
 const Home = () => {
     return <div>Welcome to the Home Page!</div>;

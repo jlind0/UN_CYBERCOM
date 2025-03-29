@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Cybercom from './cybercom.tsx';
 import Home from './Home.tsx'
