@@ -24,72 +24,71 @@ function Cybercom() {
         const contract = await factory.deploy(subscription_id);
         await contract.waitForDeployment();
         const code = await contract.getDeployedCode();
-        if (code) {
-            setActivity('Deploying Council Manager Contract');
-            const address = await contract.getAddress();
-            const councilManagerFactory = new CouncilManager__factory(signer);
-            const ct = await councilManagerFactory.deploy(address);
-            await ct.waitForDeployment();
-            const ctCode = await ct.getDeployedCode();
-            if (!ctCode)
-                return;
-            setActivity('Deploying Proposal Storage Contract ');
-            const ctAddress = await ct.getAddress();
-            const propStorContact = new ProposalStorageManager__factory(signer);
-            const pCt = await propStorContact.deploy(address);
-            await pCt.waitForDeployment();
-            const pCtCode = await pCt.getDeployedCode();
-            if (!pCtCode)
-                return;
-            setActivity('Deploying Voting Contract');
-            const pCtAddress = await pCt.getAddress();
-            const vsContract = new Voting__factory(signer);
-            const vs = await vsContract.deploy(subscriptionId, address, ctAddress);
-            await vs.waitForDeployment();
-            const vsCode = await vs.getDeployedCode();
-            if (!vsCode)
-                return;
-            setActivity('Deploying Membership Removal Contract');
-            const vsAddress = await vs.getAddress();
-            const memRemovalFactory = new MembershipRemovalManager__factory(signer);
-            const memRemoval = await memRemovalFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
-            await memRemoval.waitForDeployment();
-            const memRemovalCode = await memRemoval.getDeployedCode();
-            if (!memRemovalCode)
-                return;
-            setActivity('Deploying Membership Management Contract');
-            const memRemovalAddress = await memRemoval.getAddress();
-            const memManContractFactory = new MembershipManager__factory(signer);
-            const memMan = await memManContractFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
-            await memMan.waitForDeployment();
-            const memManCode = await memMan.getDeployedCode();
+        if (!code)
+            return;
+        setActivity('Deploying Council Manager Contract');
+        const address = await contract.getAddress();
+        const councilManagerFactory = new CouncilManager__factory(signer);
+        const ct = await councilManagerFactory.deploy(address);
+        await ct.waitForDeployment();
+        const ctCode = await ct.getDeployedCode();
+        if (!ctCode)
+            return;
+        setActivity('Deploying Proposal Storage Contract ');
+        const ctAddress = await ct.getAddress();
+        const propStorContact = new ProposalStorageManager__factory(signer);
+        const pCt = await propStorContact.deploy(address);
+        await pCt.waitForDeployment();
+        const pCtCode = await pCt.getDeployedCode();
+        if (!pCtCode)
+            return;
+        setActivity('Deploying Voting Contract');
+        const pCtAddress = await pCt.getAddress();
+        const vsContract = new Voting__factory(signer);
+        const vs = await vsContract.deploy(subscriptionId, address, ctAddress);
+        await vs.waitForDeployment();
+        const vsCode = await vs.getDeployedCode();
+        if (!vsCode)
+            return;
+        setActivity('Deploying Membership Removal Contract');
+        const vsAddress = await vs.getAddress();
+        const memRemovalFactory = new MembershipRemovalManager__factory(signer);
+        const memRemoval = await memRemovalFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
+        await memRemoval.waitForDeployment();
+        const memRemovalCode = await memRemoval.getDeployedCode();
+        if (!memRemovalCode)
+            return;
+        setActivity('Deploying Membership Management Contract');
+        const memRemovalAddress = await memRemoval.getAddress();
+        const memManContractFactory = new MembershipManager__factory(signer);
+        const memMan = await memManContractFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
+        await memMan.waitForDeployment();
+        const memManCode = await memMan.getDeployedCode();
 
-            if (!memManCode)
-                return;
-            setActivity('Deploying Voting Parameter Contract');
+        if (!memManCode)
+            return;
+        setActivity('Deploying Voting Parameter Contract');
 
-            const memManAddress = await memMan.getAddress();
-            const votParmFactory = new VotingParametersManager__factory(signer);
-            const votParm = await votParmFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
-            await votParm.waitForDeployment();
-            const votParmCode = await votParm.getDeployedCode();
-            if (!votParmCode)
-                return;
-            setActivity('Initializing Cybercom Contract');
-            const votParAddress = await votParm.getAddress();
-            await contract.initialize({
-                daoAddress: address,
-                votingAddress: vsAddress,
-                votingParametersManagerAddress: votParAddress,
-                proposalStorageAddress: pCtAddress,
-                membershipManagerAddress: memManAddress,
-                membershipRemovalAddress: memRemovalAddress,
-                councilManagementAddress: ctAddress
-            });;
-            console.log('Contract deployed at:', address);
-            return address;
-        }
-        return undefined;
+        const memManAddress = await memMan.getAddress();
+        const votParmFactory = new VotingParametersManager__factory(signer);
+        const votParm = await votParmFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
+        await votParm.waitForDeployment();
+        const votParmCode = await votParm.getDeployedCode();
+        if (!votParmCode)
+            return;
+        setActivity('Initializing Cybercom Contract');
+        const votParAddress = await votParm.getAddress();
+        await contract.initialize({
+            daoAddress: address,
+            votingAddress: vsAddress,
+            votingParametersManagerAddress: votParAddress,
+            proposalStorageAddress: pCtAddress,
+            membershipManagerAddress: memManAddress,
+            membershipRemovalAddress: memRemovalAddress,
+            councilManagementAddress: ctAddress
+        });;
+        console.log('Contract deployed at:', address);
+        return address;
     };
     const handleSetupProvider = async () => {
         try {
