@@ -24,6 +24,7 @@
     "react-router-dom": "^7.4.0"
   },
   "devDependencies": {
+    "@azure/static-web-apps-cli": "^2.0.4",
     "@eslint/js": "^9.21.0",
     "@types/node": "^20",
     "@types/react": "^19.0.10",
