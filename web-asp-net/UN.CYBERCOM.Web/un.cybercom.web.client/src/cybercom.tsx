@@ -20,7 +20,7 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         <button onClick={() => store.handleLoadContract()} disabled={store.isLoading}>
             {store.isLoading ? 'Loading contract...' : 'Load Contract'}
         </button>
-        {store.contract && store.contractAddresses && (
+        {store.contract && (
             <div>
                 <p>Voting: {store.contractAddresses.votingAddress}</p>
                 <p>Voting Parameters: {store.contractAddresses.votingParametersManagerAddress}</p>
