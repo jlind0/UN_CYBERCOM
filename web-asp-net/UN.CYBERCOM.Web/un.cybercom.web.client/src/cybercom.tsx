@@ -78,7 +78,7 @@ function Cybercom() {
             return;
         setActivity('Initializing Cybercom Contract');
         const votParAddress = await votParm.getAddress();
-        await contract.initialize({
+        const initResp = await contract.initialize({
             daoAddress: address,
             votingAddress: vsAddress,
             votingParametersManagerAddress: votParAddress,
@@ -87,6 +87,10 @@ function Cybercom() {
             membershipRemovalAddress: memRemovalAddress,
             councilManagementAddress: ctAddress
         });;
+        await initResp.wait();
+        var closeResp = await contract.closeInitialization();
+        setActivity('Finalizing Cybercom Contract');
+        await closeResp.wait();
         console.log('Contract deployed at:', address);
         return address;
     };
