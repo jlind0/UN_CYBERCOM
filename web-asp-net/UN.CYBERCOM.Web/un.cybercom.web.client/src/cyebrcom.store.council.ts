@@ -13,7 +13,8 @@ export class CouncilViewModel {
             this.name = obj.name;
             this.groups.length = 0;
             obj.groups.forEach((g) => {
-                var gvm = new CouncilGroupViewModel();
+                const gvm = new CouncilGroupViewModel();
+                gvm.councilName = this.name;
                 gvm.updateObj(g);
                 this.groups.push(gvm);
             });
@@ -24,6 +25,7 @@ export class CouncilGroupViewModel {
     id: bigint | undefined = undefined;
     name: string | undefined = undefined;
     nations: NationViewModel[] = [];
+    councilName: string | undefined = undefined;
     constructor() {
         makeAutoObservable(this);
     }
@@ -32,8 +34,10 @@ export class CouncilGroupViewModel {
             this.nations.length = 0;
             this.id = obj.id;
             this.name = obj.name;
+            this.councilName = this.councilName + ' - ' + obj.name;
             obj.members.forEach((m) => {
                 const nat = new NationViewModel();
+                nat.councilName = this.councilName;
                 nat.updateObj(m);
                 this.nations.push(nat);
             });
@@ -43,6 +47,7 @@ export class CouncilGroupViewModel {
 export class NationViewModel {
     id: string | undefined = undefined;
     name: string | undefined = undefined;
+    councilName: string | undefined = undefined;
     constructor() {
         makeAutoObservable(this);
     }

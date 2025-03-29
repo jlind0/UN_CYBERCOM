@@ -1,10 +1,13 @@
-import { CybercomStore } from './cybercom.store';
+import { CybercomStore, AddMemberStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
-import { CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
+import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CForm, CFormInput, CFormSelect, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
     store: CybercomStore;
+}
+interface AddMembershipProposalParameter {
+    addStore: AddMemberStore;
 }
 const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
@@ -53,6 +56,7 @@ const NationsView = observer(({ store }: CybercomStoreParameter) => (
             <CTableRow>
                 <CTableHeaderCell scope="col">Nation Name</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Nation Id</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Council Name</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -60,6 +64,7 @@ const NationsView = observer(({ store }: CybercomStoreParameter) => (
                 <CTableRow key={index}>
                     <CTableDataCell>{vp.name}</CTableDataCell>
                     <CTableDataCell>{vp.id}</CTableDataCell>
+                    <CTableDataCell>{vp.councilName}</CTableDataCell>
                 </CTableRow>
             ))}
         </CTableBody>
@@ -99,6 +104,7 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         </button>
         {store.contract && (
             <div>
+                <AddMemberProposalView addStore={store.addMembershipProposal}/>
                 <CTabs activeItemKey="addresses">
                     <CTabList variant="tabs">
                         <CTab itemKey="addresses">Addresses</CTab>
@@ -131,7 +137,71 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         )}
     </div>
 ));
+const AddMemberProposalView = observer(({ addStore }: AddMembershipProposalParameter) => (
+    <>
+        <CButton color="primary" onClick={() => (addStore.isOpen = true)}>
+            Submit Membership Proposal
+        </CButton>
+        <CModal
+            visible={addStore.isOpen}
+            onClose={() => (addStore.isOpen = false)}
+            aria-labelledby="lblAddMember"
+        >
+            <CModalHeader>
+                <CModalTitle id="lblAddMember">Propose Membership</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+                <CForm>
+                    {/* Select Council Group */}
+                    <CFormSelect
+                        aria-label="Select Council"
+                        value={addStore.selectedGroupId?.toString()}
+                        onChange={(evt) => (addStore.selectedGroupId = evt.target.value)}
+                    >
+                        <option value="">Select a Council Group</option>
+                        {addStore.cyberComStore?.councils.map((item) =>
+                            item.groups.map((g) => (
+                                <option key={g.id?.toString() || g.name} value={g.id?.toString()}>
+                                    {item.name} - {g.name}
+                                </option>
+                            ))
+                        )}
+                    </CFormSelect>
 
+                    {/* Member Name Input */}
+                    <CFormInput
+                        aria-label="Member Name"
+                        placeholder="Enter Member Name"
+                        value={addStore.newNationName}
+                        onChange={(evt) => (addStore.newNationName = evt.target.value)}
+                        className="my-2"
+                    />
+
+                    {/* Member Address Input */}
+                    <CFormInput
+                        aria-label="Member Address"
+                        placeholder="Enter Member Address"
+                        value={addStore.newNationAddress}
+                        onChange={(evt) => (addStore.newNationAddress = evt.target.value)}
+                        className="my-2"
+                    />
+                </CForm>
+            </CModalBody>
+            <CModalFooter>
+                <CButton color="secondary" onClick={() => (addStore.isOpen = false)}>
+                    Close
+                </CButton>
+                <CButton
+                    color="primary"
+                    onClick={() => addStore.proposeMember()}
+                    disabled={addStore.deploying}
+                >
+                    {addStore.deploying ? 'Deploying Proposal...' : 'Propose Member'}
+                </CButton>
+            </CModalFooter>
+        </CModal>
+    </>
+));
 const ContractNotLoadedView = observer(({ store }: CybercomStoreParameter) => (
     <div>
         <button onClick={() => store.handleDeployContract()} disabled={store.deploying}>

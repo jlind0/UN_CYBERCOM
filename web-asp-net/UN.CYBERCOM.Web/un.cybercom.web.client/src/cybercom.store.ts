@@ -15,13 +15,13 @@ import {
 } from './typechain';
 
 const subscriptionId = BigInt(import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID);
-let initialCybercomContract = import.meta.env.VITE_CYBERCOM_DAO_CONTRACT;
 export class AddMemberStore {
     cyberComStore: CybercomStore | undefined = undefined;
     newNationName: string | undefined = undefined;
     newNationAddress: string | undefined = undefined;
     deploying: boolean = false;
-    selectedGroupId: bigint | undefined = undefined;
+    selectedGroupId: string | undefined = undefined;
+    isOpen: boolean = false;
     constructor(store: CybercomStore, ) {
         makeAutoObservable(this);
         this.cyberComStore = store;
@@ -42,7 +42,7 @@ export class AddMemberStore {
                 },
                 member: this.newNationAddress,
                 duration: BigInt(0),
-                groupId: this.selectedGroupId
+                groupId: BigInt(this.selectedGroupId)
             });
             return true;
         }
@@ -54,6 +54,7 @@ export class AddMemberStore {
                 this.deploying = false;
                 this.newNationAddress = undefined;
                 this.newNationName = undefined;
+                this.isOpen = false;
             });
         }
     }
@@ -68,7 +69,7 @@ export class CybercomStore {
     provider: ethers.BrowserProvider | undefined = undefined;
     signer: ethers.JsonRpcSigner | undefined = undefined;
     activity: string = '';
-    cybercomContract: string | undefined = initialCybercomContract;
+    cybercomContract: string | undefined = import.meta.env.VITE_CYBERCOM_DAO_CONTRACT;
     votingParameters: VotingParametersViewModel[] = [];
     councils: CouncilViewModel[] = [];
     nations: NationViewModel[] = [];
