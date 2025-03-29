@@ -34,7 +34,7 @@ export class AddMemberStore {
             runInAction(() => {
                 this.deploying = true;
             });
-            this.cyberComStore.contract.submitMembershipProposal({
+            const resp = await this.cyberComStore.contract.submitMembershipProposal({
                 owner: this.cyberComStore.signer.address,
                 newNation: {
                     name: this.newNationName,
@@ -44,6 +44,7 @@ export class AddMemberStore {
                 duration: BigInt(0),
                 groupId: BigInt(this.selectedGroupId)
             });
+            await resp.wait();
             return true;
         }
         catch {
