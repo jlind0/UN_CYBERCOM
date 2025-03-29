@@ -2,10 +2,11 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Cybercom from './cybercom.tsx';
 import Home from './Home.tsx'
+import { CContainer } from '@coreui/react'
 
 function App() {
     return (
-        <div>
+        <CContainer className="px-4" lg>
             <h1>UNofficial CYBERCOM Portal</h1>
             <div>
                 <Routes>
@@ -14,7 +15,7 @@ function App() {
                     <Route path="*" element={<h2>404 - Page Not Found</h2>} />
                 </Routes>
             </div>
-        </div>
+        </CContainer>
     );
 }
 

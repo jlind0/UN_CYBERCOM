@@ -1,6 +1,7 @@
 import React from 'react';
 import { CybercomStore } from './cybercom.store.ts';
 import { observer } from 'mobx-react-lite';
+import { CTab, CTabContent, CTabList, CTabPanel, CTabs } from '@coreui/react'
 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
@@ -58,12 +59,24 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         </button>
         {store.contract && (
             <div>
-                <p>Voting: {store.contractAddresses.votingAddress}</p>
-                <p>Voting Parameters: {store.contractAddresses.votingParametersManagerAddress}</p>
-                <p>Council Management: {store.contractAddresses.councilManagementAddress}</p>
-                <p>Membership Manager: {store.contractAddresses.membershipManagerAddress}</p>
-                <p>Membership Removal: {store.contractAddresses.membershipRemovalAddress}</p>
-                <VotingParametersView store={store}/>
+                <CTabs activeItemKey="addresses">
+                    <CTabList variant="tabs">
+                        <CTab itemKey="addresses">Addresses</CTab>
+                        <CTab itemKey="voting_parameters">Voting Parameters</CTab>
+                    </CTabList>
+                    <CTabContent>
+                        <CTabPanel className="p-3" itemKey="addresses">
+                            <p>Voting: {store.contractAddresses.votingAddress}</p>
+                            <p>Voting Parameters: {store.contractAddresses.votingParametersManagerAddress}</p>
+                            <p>Council Management: {store.contractAddresses.councilManagementAddress}</p>
+                            <p>Membership Manager: {store.contractAddresses.membershipManagerAddress}</p>
+                            <p>Membership Removal: {store.contractAddresses.membershipRemovalAddress}</p>
+                        </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="voting_parameters">
+                            <VotingParametersView store={store} />
+                        </CTabPanel>
+                    </CTabContent>
+                </CTabs>
             </div>
         )}
     </div>
