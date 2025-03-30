@@ -1,4 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
+import { CouncilsViewModel } from './cyebrcom.store.council';
 export class AddMemberStore {
     cyberComStore: ContractModel | undefined = undefined;
     newNationName: string | undefined = undefined;
@@ -6,9 +7,12 @@ export class AddMemberStore {
     deploying: boolean = false;
     selectedGroupId: string | undefined = undefined;
     isOpen: boolean = false;
-    constructor(store: ContractModel) {
+    councils: CouncilsViewModel;
+
+    constructor(store: ContractModel, councils: CouncilsViewModel) {
         makeAutoObservable(this);
         this.cyberComStore = store;
+        this.councils = councils;
     }
     async proposeMember(): Promise<boolean> {
         try {

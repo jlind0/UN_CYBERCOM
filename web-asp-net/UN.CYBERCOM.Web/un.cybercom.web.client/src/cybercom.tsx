@@ -1,8 +1,8 @@
-import { CybercomStore, AddMemberStore } from './cybercom.store';
+import { CybercomStore } from './cybercom.store';
+import { AddMemberStore } from './cybercom.store.membership.add';
 import { observer } from 'mobx-react-lite';
 import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CForm, CFormInput, CFormSelect, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 import { MembershipProposalViewModel } from './cybercom.store.membership';
-import { MembershipProposal } from './typechain';
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
     store: CybercomStore;
@@ -232,7 +232,7 @@ const AddMemberProposalView = observer(({ addStore }: AddMembershipProposalParam
                         onChange={(evt) => (addStore.selectedGroupId = evt.target.value)}
                     >
                         <option value="">Select a Council Group</option>
-                        {addStore.cyberComStore?.councils.councils.map((item) =>
+                        {addStore.councils.councils.map((item) =>
                             item.groups.map((g) => (
                                 <option key={g.id?.toString() || g.name} value={g.id?.toString()}>
                                     {item.name} - {g.name}

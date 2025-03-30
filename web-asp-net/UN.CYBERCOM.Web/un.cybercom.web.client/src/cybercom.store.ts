@@ -32,9 +32,10 @@ export class CybercomStore implements ContractModel {
     votingParameters: VotingParametersViewModel[] = [];
     councils: CouncilsViewModel = new CouncilsViewModel();
     nations: NationViewModel[] = [];
-    addMembershipProposal: AddMemberStore = new AddMemberStore(this);
+    addMembershipProposal: AddMemberStore
     membershipProposals: MembershipProposalsViewModel;
     constructor() {
+        this.addMembershipProposal = new AddMemberStore(this, this.councils);
         this.membershipProposals = new MembershipProposalsViewModel(this, this.councils);
         makeAutoObservable(this);
     }
