@@ -2,7 +2,9 @@ import { makeAutoObservable, runInAction} from 'mobx';
 import { ethers } from 'ethers';
 import { VotingParametersViewModel } from './cybercom.store.voting_parameters';
 import { ContractAddressesViewModel } from './cybercom.store.contract_addresses';
-import { CouncilViewModel, NationViewModel } from './cyebrcom.store.council';
+import { CouncilViewModel, NationViewModel, CouncilsViewModel } from './cyebrcom.store.council';
+import { AddMemberStore } from './cybercom.store.membership.add';
+import { MembershipProposalsViewModel } from './cybercom.store.membership';
 import {
     CybercomDAO__factory,
     CybercomDAO,
@@ -15,52 +17,8 @@ import {
 } from './typechain';
 
 const subscriptionId = BigInt(import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID);
-export class AddMemberStore {
-    cyberComStore: CybercomStore | undefined = undefined;
-    newNationName: string | undefined = undefined;
-    newNationAddress: string | undefined = undefined;
-    deploying: boolean = false;
-    selectedGroupId: string | undefined = undefined;
-    isOpen: boolean = false;
-    constructor(store: CybercomStore, ) {
-        makeAutoObservable(this);
-        this.cyberComStore = store;
-    }
-    async proposeMember(): Promise<boolean> {
-        try {
-            if (this.newNationName === undefined || this.newNationAddress === undefined || this.selectedGroupId === undefined ||
-                this.cyberComStore?.contract === undefined || this.cyberComStore.signer === undefined)
-                return false;
-            runInAction(() => {
-                this.deploying = true;
-            });
-            const resp = await this.cyberComStore.contract.submitMembershipProposal({
-                owner: this.cyberComStore.signer.address,
-                newNation: {
-                    name: this.newNationName,
-                    id: this.newNationAddress
-                },
-                member: this.newNationAddress,
-                duration: BigInt(0),
-                groupId: BigInt(this.selectedGroupId)
-            });
-            await resp.wait();
-            return true;
-        }
-        catch {
-            return false;
-        }
-        finally {
-            runInAction(() => {
-                this.deploying = false;
-                this.newNationAddress = undefined;
-                this.newNationName = undefined;
-                this.isOpen = false;
-            });
-        }
-    }
-}
-export class CybercomStore {
+
+export class CybercomStore implements ContractModel {
     deploying: boolean = false;
     connecting: boolean = false;
     isConnected: boolean = false;
@@ -72,10 +30,12 @@ export class CybercomStore {
     activity: string = '';
     cybercomContract: string | undefined = import.meta.env.VITE_CYBERCOM_DAO_CONTRACT;
     votingParameters: VotingParametersViewModel[] = [];
-    councils: CouncilViewModel[] = [];
+    councils: CouncilsViewModel = new CouncilsViewModel();
     nations: NationViewModel[] = [];
     addMembershipProposal: AddMemberStore = new AddMemberStore(this);
+    membershipProposals: MembershipProposalsViewModel;
     constructor() {
+        this.membershipProposals = new MembershipProposalsViewModel(this, this.councils);
         makeAutoObservable(this);
     }
 
@@ -213,7 +173,7 @@ export class CybercomStore {
             const councils = await councilManagementContract.getCouncils();
             runInAction(() => {
                 this.votingParameters.length = 0;
-                this.councils.length = 0;
+                const cvms: CouncilViewModel[] = [];
                 this.nations.length = 0;
                 councils.forEach((c) => {
                     const vp = new VotingParametersViewModel();
@@ -221,13 +181,14 @@ export class CybercomStore {
                     this.votingParameters.push(vp);
                     const cvm = new CouncilViewModel();
                     cvm.updateObj(c);
-                    this.councils.push(cvm);
                     cvm.groups.forEach((g) => {
                         g.nations.forEach(n => {
                             this.nations.push(n);
                         });
-                    })
+                    });
+                    cvms.push(cvm);
                 });
+                this.councils.load(cvms);
             });
            
         } finally {

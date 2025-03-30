@@ -1,5 +1,47 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { MembershipManagement } from './typechain/contracts/CouncilManager'
+import { MembershipManagement } from './typechain/contracts/CouncilManager';
+import { MembershipManagement as MM } from './typechain/contracts/Membership.sol/MembershipManager';
+export class CouncilsViewModel {
+    councils: CouncilViewModel[] = [];
+    constructor() {
+        makeAutoObservable(this);
+    }
+    load(vms: CouncilViewModel[]) {
+        runInAction(() => {
+            this.councils.length = 0;
+            vms.forEach(c => {
+                this.councils.push(c);
+            });
+        });
+    }
+    getCouncil(role: string): CouncilViewModel | undefined {
+        this.councils.forEach(c => {
+            if (c.role == role)
+                return c;
+        });
+        return;
+    }
+    getCouncilGroup(groupId: bigint): CouncilGroupViewModel | undefined {
+        this.councils.forEach(c => {
+            c.groups.forEach(g => {
+                if (g.id == groupId)
+                    return g;
+            });
+        });
+        return;
+    }
+    getNation(address: string): NationViewModel | undefined {
+        this.councils.forEach(c => {
+            c.groups.forEach(g => {
+                g.nations.forEach(n => {
+                    if (n.id == address)
+                        return n;
+                });
+            });
+        });
+        return;
+    }
+}
 export class CouncilViewModel {
     name: string | undefined = undefined;
     role: string | undefined = undefined;
@@ -52,6 +94,12 @@ export class NationViewModel {
         makeAutoObservable(this);
     }
     updateObj(obj: MembershipManagement.NationStructOutput) {
+        runInAction(() => {
+            this.id = obj.id;
+            this.name = obj.name;
+        });
+    }
+    updateObjMM(obj: MM.NationStructOutput) {
         runInAction(() => {
             this.id = obj.id;
             this.name = obj.name;

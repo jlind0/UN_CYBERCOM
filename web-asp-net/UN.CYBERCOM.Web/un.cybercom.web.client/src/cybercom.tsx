@@ -1,7 +1,8 @@
 import { CybercomStore, AddMemberStore } from './cybercom.store';
 import { observer } from 'mobx-react-lite';
 import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CForm, CFormInput, CFormSelect, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
-
+import { MembershipProposalViewModel } from './cybercom.store.membership';
+import { MembershipProposal } from './typechain';
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
     store: CybercomStore;
@@ -80,7 +81,7 @@ const CouncilsView = observer(({ store }: CybercomStoreParameter) => (
             </CTableRow>
         </CTableHead>
         <CTableBody>
-            {store.councils.map((council, index) => (
+            {store.councils && store.councils.councils.map((council, index) => (
                 <CTableRow key={index}>
                     <CTableDataCell>{council.name}</CTableDataCell>
                     <CTableDataCell>{council.role}</CTableDataCell>
@@ -110,9 +111,8 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         <CTab itemKey="addresses">Addresses</CTab>
                         <CTab itemKey="councils">Councils</CTab>
                         <CTab itemKey="nations">Nations</CTab>
-
                         <CTab itemKey="voting_parameters">Voting Parameters</CTab>
-                        
+                        <CTab itemKey="membershipProposals">Membership Proposals</CTab>
                     </CTabList>
                     <CTabContent>
                         <CTabPanel className="p-3" itemKey="addresses">
@@ -131,11 +131,84 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         <CTabPanel className="p-3" itemKey="councils">
                             <CouncilsView store={store} />
                         </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="membershipProposals">
+                            <MembershipProposalsView store={store} />
+                        </CTabPanel>
                     </CTabContent>
                 </CTabs>
             </div>
         )}
     </div>
+));
+const MembershipProposalsView = observer(({ store }: CybercomStoreParameter) => (
+    <>
+        <CButton color="primary" onClick={() => store.membershipProposals.load()}>
+            Load Membership Proposals
+        </CButton>
+        <CTabs activeItemKey="entered">
+            <CTabList variant="tabs">
+                <CTab itemKey="entered">Entered</CTab>
+                <CTab itemKey="pending">Pending</CTab>
+                <CTab itemKey="ready">Ready</CTab>
+                <CTab itemKey="accepted">Accepted</CTab>
+                <CTab itemKey="rejected">Rejected</CTab>
+            </CTabList>
+            <CTabContent>
+                <CTabPanel className="p-3" itemKey="entered">
+                    <MembershipProposalTableView proposals={store.membershipProposals.enteredProposals}/>
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="pending">
+                    <MembershipProposalTableView proposals={store.membershipProposals.pendingProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="ready">
+                    <MembershipProposalTableView proposals={store.membershipProposals.readyProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="accepted">
+                    <MembershipProposalTableView proposals={store.membershipProposals.acceptedProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="rejected">
+                    <MembershipProposalTableView proposals={store.membershipProposals.rejectedProposals} />
+                </CTabPanel>
+            </CTabContent>
+        </CTabs>
+    </>
+));
+interface MembershipProposalTableParameters {
+    proposals: MembershipProposalViewModel[]; 
+}
+const MembershipProposalTableView = observer(({ proposals }: MembershipProposalTableParameters) => (
+    <CTable>
+        <CTableHead>
+            <CTableRow>
+                <CTableHeaderCell scope="col">Proposal Id</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Timestamp</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Council</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Group</CTableHeaderCell>
+                <CTableHeaderCell scope="col">New Nation Address</CTableHeaderCell>
+                <CTableHeaderCell scope="col">New Nation Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Votes</CTableHeaderCell>
+            </CTableRow>
+        </CTableHead>
+        <CTableBody>
+            {proposals.map((item, index) => (
+                <CTableRow key={index}>
+                    <CTableDataCell>{item.id}</CTableDataCell>
+                    <CTableDataCell>{item.duration?.toISOString()}</CTableDataCell>
+                    <CTableDataCell>{item.council?.name}</CTableDataCell>
+                    <CTableDataCell>{item.group?.name}</CTableDataCell>
+                    <CTableDataCell>{item.newNation?.id}</CTableDataCell>
+                    <CTableDataCell>{item.newNation?.name}</CTableDataCell>
+                    <CTableDataCell>
+                        {item.votes.map((vote, groupIndex) => (
+                            <div key={groupIndex}>
+                                {vote.member?.name} {vote.voteCasted} {vote.timestamp?.toISOString()}
+                            </div>
+                        ))}
+                    </CTableDataCell>
+                </CTableRow>
+            ))}
+        </CTableBody>
+    </CTable>
 ));
 const AddMemberProposalView = observer(({ addStore }: AddMembershipProposalParameter) => (
     <>
@@ -159,7 +232,7 @@ const AddMemberProposalView = observer(({ addStore }: AddMembershipProposalParam
                         onChange={(evt) => (addStore.selectedGroupId = evt.target.value)}
                     >
                         <option value="">Select a Council Group</option>
-                        {addStore.cyberComStore?.councils.map((item) =>
+                        {addStore.cyberComStore?.councils.councils.map((item) =>
                             item.groups.map((g) => (
                                 <option key={g.id?.toString() || g.name} value={g.id?.toString()}>
                                     {item.name} - {g.name}
