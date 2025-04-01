@@ -7,7 +7,6 @@ import {
     MembershipProposal__factory, MembershipManager__factory,
     Proposal__factory
 } from './typechain';
-import { sign } from 'node:crypto';
 export enum ApprovalStatus {
     Entered = 0,
     Pending = 1,
