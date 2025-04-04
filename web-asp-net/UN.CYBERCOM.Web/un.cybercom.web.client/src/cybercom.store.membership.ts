@@ -1,7 +1,7 @@
 import { runInAction, makeObservable, observable } from 'mobx';
-import { AddDocumentViewModel, DocumentViewModel } from './cyebrcom.store.documents';
+import { AddDocumentViewModel, DocumentViewModel } from './cybercom.store.documents';
 import { MembershipManagement } from './typechain/contracts/Membership.sol/MembershipManager';
-import { NationViewModel, CouncilsViewModel, CouncilGroupViewModel, CouncilViewModel } from './cyebrcom.store.council';
+import { NationViewModel, CouncilsViewModel, CouncilGroupViewModel, CouncilViewModel } from './cybercom.store.council';
 import { ProposalViewModel, ProposalsViewModel } from './cybercom.store.proposals';
 import { ApprovalStatus, fromUnixTimestamp } from './cybercom.store.common';
 import { VoteViewModel } from './cybercom.store.voting'; 

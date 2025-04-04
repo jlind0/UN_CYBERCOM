@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction} from 'mobx';
 import { ethers } from 'ethers';
 import { VotingParametersViewModel } from './cybercom.store.voting_parameters';
 import { ContractAddressesViewModel } from './cybercom.store.contract_addresses';
-import { CouncilViewModel, NationViewModel, CouncilsViewModel } from './cyebrcom.store.council';
+import { CouncilViewModel, NationViewModel, CouncilsViewModel } from './cybercom.store.council';
 import { AddMemberStore } from './cybercom.store.membership.add';
 import { MembershipProposalsViewModel } from './cybercom.store.membership';
 import {

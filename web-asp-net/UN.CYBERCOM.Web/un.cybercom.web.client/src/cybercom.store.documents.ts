@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { Proposal__factory } from './typechain/';
+import { Proposal__factory } from './typechain';
 import { verifyMessage } from 'ethers';
 import { MembershipManagement as PMM } from './typechain/contracts/Proposal.sol/MembershipProposal'
 import { computeHash, hexToByteArray } from './cybercom.store.common';

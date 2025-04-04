@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { CouncilsViewModel } from './cyebrcom.store.council';
+import { CouncilsViewModel } from './cybercom.store.council';
 export class AddMemberStore {
     cyberComStore: ContractModel | undefined = undefined;
     newNationName: string | undefined = undefined;

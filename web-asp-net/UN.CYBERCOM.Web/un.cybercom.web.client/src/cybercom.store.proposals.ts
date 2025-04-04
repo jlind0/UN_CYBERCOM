@@ -1,5 +1,5 @@
 import { runInAction } from 'mobx';
-import { AddDocumentViewModel, DocumentViewModel } from './cyebrcom.store.documents';
+import { AddDocumentViewModel, DocumentViewModel } from './cybercom.store.documents';
 import { Proposal__factory } from './typechain'; 
 import { ApprovalStatus } from './cybercom.store.common';
 import { VoteViewModel } from './cybercom.store.voting';
