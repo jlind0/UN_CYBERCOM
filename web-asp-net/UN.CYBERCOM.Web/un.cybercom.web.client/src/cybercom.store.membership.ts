@@ -4,7 +4,7 @@ import { MembershipManagement as PMM } from './typechain/contracts/Proposal.sol/
 import { NationViewModel, CouncilsViewModel, CouncilGroupViewModel, CouncilViewModel } from './cyebrcom.store.council';
 import { verifyMessage } from 'ethers';
 import {
-    MembershipProposal__factory, MembershipManager__factory,
+    MembershipManager__factory,
     Proposal__factory
 } from './typechain';
 export enum ApprovalStatus {
