@@ -139,32 +139,62 @@ export class AddDocumentViewModel {
         }
     }
 }
-export class MembershipProposalsViewModel {
-    isLoading: boolean = false;
-    councils: CouncilsViewModel;
+export abstract class ProposalViewModel<TProposalDTO> {
+    id: bigint | undefined = undefined; 
+    votes: VoteViewModel[] = [];
+    duration: Date | undefined = undefined;
+    status: ApprovalStatus | undefined = undefined;
+    isProcessing: boolean | undefined = undefined;
+    votingStarted: boolean | undefined = undefined;
+    owner: string | undefined = undefined;
+    proposalAddress: string | undefined = undefined;
     contractModel: ContractModel;
-    enteredProposals: MembershipProposalViewModel[] = [];
-    pendingProposals: MembershipProposalViewModel[] = [];
-    readyProposals: MembershipProposalViewModel[] = [];
-    acceptedProposals: MembershipProposalViewModel[] = [];
-    rejectedProposals: MembershipProposalViewModel[] = [];
-    constructor(contractModel: ContractModel, councils: CouncilsViewModel) {
+    documents: DocumentViewModel[] = [];
+    addDocument: AddDocumentViewModel | undefined = undefined;
+    constructor(contractModel: ContractModel) {
         this.contractModel = contractModel;
-        this.councils = councils;
         makeAutoObservable(this);
     }
+    abstract updateObj(obj: TProposalDTO): void;
+    async load() {
+        if (this.proposalAddress && this.contractModel.signer) {
+            const prop = Proposal__factory.connect(this.proposalAddress, this.contractModel.signer);
+            const docs = await prop.getDocuments();
+            runInAction(() => {
+                this.documents.length = 0;
+                docs.forEach(d => {
+                    const vm = new DocumentViewModel(this.contractModel);
+                    vm.updateObj(d);
+                    this.documents.push(vm);
+                });
+            });
+        }
+    }
+}
+export abstract class ProposalsViewModel<TProposalDTO, TViewModel extends ProposalViewModel<TProposalDTO>> {
+    isLoading: boolean = false;
+    contractModel: ContractModel;
+    enteredProposals: TViewModel[] = [];
+    pendingProposals: TViewModel[] = [];
+    readyProposals: TViewModel[] = [];
+    acceptedProposals: TViewModel[] = [];
+    rejectedProposals: TViewModel[] = [];
+    constructor(contractModel: ContractModel) {
+        this.contractModel = contractModel;
+        makeAutoObservable(this);
+    }
+    abstract loadProposals(status: ApprovalStatus): Promise<TViewModel[]>;
     async load() {
         try {
             runInAction(() => {
                 this.isLoading = true;
             });
             if (this.contractModel.contract && this.contractModel.contractAddresses.membershipManagerAddress) {
-                const contract = MembershipManager__factory.connect(this.contractModel.contractAddresses.membershipManagerAddress, this.contractModel.signer);
-                const entered = await contract.getMembershipRequests(ApprovalStatus.Entered);
-                const pending = await contract.getMembershipRequests(ApprovalStatus.Pending);
-                const ready = await contract.getMembershipRequests(ApprovalStatus.Ready);
-                const accepted = await contract.getMembershipRequests(ApprovalStatus.Approved);
-                const rejected = await contract.getMembershipRequests(ApprovalStatus.Rejected);
+                const entered = await this.loadProposals(ApprovalStatus.Entered);
+                const pending = await this.loadProposals(ApprovalStatus.Pending);
+                const ready = await this.loadProposals(ApprovalStatus.Ready);
+                const accepted = await this.loadProposals(ApprovalStatus.Approved);
+                const rejected = await this.loadProposals(ApprovalStatus.Rejected);
                 runInAction(() => {
                     this.enteredProposals.length = 0;
                     this.pendingProposals.length = 0;
@@ -172,29 +202,19 @@ export class MembershipProposalsViewModel {
                     this.acceptedProposals.length = 0;
                     this.rejectedProposals.length = 0;
                     entered.forEach((v) => {
-                        const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
-                        vm.updateObj(v);
-                        this.enteredProposals.push(vm);
+                        this.enteredProposals.push(v);
                     });
                     pending.forEach((v) => {
-                        const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
-                        vm.updateObj(v);
-                        this.pendingProposals.push(vm);
+                        this.pendingProposals.push(v);
                     });
                     ready.forEach((v) => {
-                        const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
-                        vm.updateObj(v);
-                        this.acceptedProposals.push(vm);
+                        this.acceptedProposals.push(v);
                     });
                     accepted.forEach((v) => {
-                        const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
-                        vm.updateObj(v);
-                        this.readyProposals.push(vm);
+                        this.readyProposals.push(v);
                     });
                     rejected.forEach((v) => {
-                        const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
-                        vm.updateObj(v);
-                        this.rejectedProposals.push(vm);
+                        this.rejectedProposals.push(v);
                     });
                     this.enteredProposals.forEach(async (v) => {
                         await v.load();
@@ -221,27 +241,35 @@ export class MembershipProposalsViewModel {
         }
     }
 }
-export class MembershipProposalViewModel {
-    id: bigint | undefined = undefined;
+export class MembershipProposalsViewModel extends ProposalsViewModel<MembershipManagement.MembershipProposalResponseStructOutput, MembershipProposalViewModel> {
+    councils: CouncilsViewModel;
+    constructor(contractModel: ContractModel, councils: CouncilsViewModel) {
+        super(contractModel);
+        this.councils = councils;
+    }
+    async loadProposals(status: ApprovalStatus): Promise<MembershipProposalViewModel[]> {
+        const vms: MembershipProposalViewModel[] = [];
+        if (this.contractModel.contract && this.contractModel.contractAddresses.membershipManagerAddress) {
+            const contract = MembershipManager__factory.connect(this.contractModel.contractAddresses.membershipManagerAddress, this.contractModel.signer);
+            const contracts = await contract.getMembershipRequests(status);
+            contracts.forEach((v) => {
+                const vm = new MembershipProposalViewModel(this.contractModel, this.councils);
+                vm.updateObj(v);
+                vms.push(vm);
+            });
+        }
+        return vms;
+    }
+}
+export class MembershipProposalViewModel extends ProposalViewModel<MembershipManagement.MembershipProposalResponseStructOutput> {
     member: string | undefined = undefined;
     newNation: NationViewModel = new NationViewModel();
     council: CouncilViewModel | undefined = undefined;
     group: CouncilGroupViewModel | undefined = undefined;
-    votes: VoteViewModel[] = [];
-    duration: Date | undefined = undefined;
-    status: ApprovalStatus | undefined = undefined;
-    isProcessing: boolean | undefined = undefined;
-    votingStarted: boolean | undefined = undefined;
-    owner: string | undefined = undefined;
-    proposalAddress: string | undefined = undefined;
     councils: CouncilsViewModel;
-    addDocument: AddDocumentViewModel | undefined = undefined;
-    contractModel: ContractModel;
-    documents: DocumentViewModel[] = [];
     constructor(contractModel: ContractModel, councils: CouncilsViewModel) {
+        super(contractModel);
         this.councils = councils;
-        this.contractModel = contractModel;
-        makeAutoObservable(this);
     }
     updateObj(obj: MembershipManagement.MembershipProposalResponseStructOutput) {
         runInAction(() => {
