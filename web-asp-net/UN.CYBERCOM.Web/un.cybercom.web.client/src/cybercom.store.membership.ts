@@ -248,7 +248,7 @@ export class MembershipProposalViewModel {
             this.id = obj.id;
             this.member = obj.member;
             this.newNation.updateObjMM(obj.newNation);
-            this.council = this.councils.getCouncil(obj.council);
+            this.council = this.councils.getCouncil(obj.council)
             this.group = this.councils.getCouncilGroup(obj.groupId);
             this.votes.length = 0;
             obj.votes.forEach(v => {

@@ -15,20 +15,22 @@ export class CouncilsViewModel {
         });
     }
     getCouncil(role: string): CouncilViewModel | undefined {
+        let cncl: CouncilViewModel | undefined = undefined;
         this.councils.forEach(c => {
-            if (c.role == role)
-                return c;
+            if (c.role === role)
+                cncl = c;
         });
-        return;
+        return cncl;
     }
     getCouncilGroup(groupId: bigint): CouncilGroupViewModel | undefined {
+        let group: CouncilGroupViewModel | undefined = undefined;
         this.councils.forEach(c => {
             c.groups.forEach(g => {
-                if (g.id == groupId)
-                    return g;
+                if (g.id === groupId)
+                    group = g;
             });
         });
-        return;
+        return group;
     }
     getNation(address: string): NationViewModel | undefined {
         this.councils.forEach(c => {
