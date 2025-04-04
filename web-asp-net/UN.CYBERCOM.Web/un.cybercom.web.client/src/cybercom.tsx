@@ -265,7 +265,10 @@ const MembershipProposalTableView = observer(({ proposals }: MembershipProposalT
                             {item.documents.map((doc, groupIndex) => (
                                 <div key={groupIndex}>
                                     {doc.title} <a href={doc.url} target="_blank">{doc.url}</a>
-                                    Hash:{doc.hash} Signature: {doc.signature}
+                                    Hash:{doc.hash} Signature: {doc.signature} Signer: {doc.signer }
+                                    <CButton color="primary" onClick={async () => alert(await doc.verify())}>
+                                        Verify
+                                    </CButton>
                                 </div>
                             ))}
                         </CTableDataCell>

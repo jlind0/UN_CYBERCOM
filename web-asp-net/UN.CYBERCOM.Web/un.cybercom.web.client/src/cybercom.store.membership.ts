@@ -121,7 +121,7 @@ export class AddDocumentViewModel {
                 throw new Error("Invalid data");
             }
             if (this.contractModel.contract && this.contractModel.signer && this.title && this.url && this.documentHash && this.signature) {
-                const contract = MembershipProposal__factory.connect(this.proposalAddress, this.contractModel.signer);
+                const contract = Proposal__factory.connect(this.proposalAddress, this.contractModel.signer);
                 const resp = await contract.addDocument(this.contractModel.signer.address, this.title, this.url,
                     this.documentHash,
                     this.signature, { gasLimit: 5000000 });
@@ -303,16 +303,18 @@ export class DocumentViewModel {
             this.signer = obj.signer;
         });
     }
-    async verify() {
+    async verify() : Promise<boolean> {
         if (this.url) {
             const hash = await computeHash(this.url);
-            if (this.hash == hash && this.signer) {
-                this.isVerified = this.signature == verifyMessage(hash, this.signer);
+            if (this.hash == hash && this.signature) {
+                const address = verifyMessage(hexToByteArray(hash), this.signature);
+                this.isVerified = this.signer == address;
             }
             else
                 this.isVerified = false;
 
         }
+        return this.isVerified;
     }
 }
 export function fromUnixTimestamp(timestamp: bigint | number): Date {
