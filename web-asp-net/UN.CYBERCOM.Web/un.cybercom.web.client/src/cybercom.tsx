@@ -2,7 +2,8 @@ import { CybercomStore } from './cybercom.store';
 import { AddMemberStore } from './cybercom.store.membership.add';
 import { observer } from 'mobx-react-lite';
 import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CForm, CFormInput, CFormSelect, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
-import { MembershipProposalViewModel, ApprovalStatus } from './cybercom.store.membership';
+import { MembershipProposalViewModel } from './cybercom.store.membership';
+import { ApprovalStatus } from './cybercom.store.common'; 
 const cybercomStore = new CybercomStore();
 interface CybercomStoreParameter {
     store: CybercomStore;
