@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
-import { CybercomStoreParameter } from './cybercom.views.common';
+import { VotingParametersParameters } from './cybercom.views.common';
 import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from '@coreui/react'
 
-const VotingParametersView = observer(({ store }: CybercomStoreParameter) => (
+const VotingParametersView = observer(({ votingParameters }: VotingParametersParameters) => (
     <CTable>
         <CTableHead>
             <CTableRow>
@@ -19,7 +19,7 @@ const VotingParametersView = observer(({ store }: CybercomStoreParameter) => (
             </CTableRow>
         </CTableHead>
         <CTableBody>
-            {store.votingParameters.map((vp, index) => (
+            {votingParameters.votingParameters.map((vp, index) => (
                 <CTableRow key={index}>
                     <CTableDataCell>{vp.councilName}</CTableDataCell>
                     <CTableDataCell>{vp.randomizeByGroup?.toString()}</CTableDataCell>

@@ -1,11 +1,12 @@
 import { makeAutoObservable, runInAction} from 'mobx';
 import { ethers } from 'ethers';
-import { VotingParametersViewModel } from './cybercom.store.voting_parameters';
+import { VotingParametersViewModel, VotingParametersProposalsViewModel, VotingParametersViewModels } from './cybercom.store.voting_parameters';
 import { ContractAddressesViewModel } from './cybercom.store.contract_addresses';
 import { CouncilViewModel, NationViewModel, CouncilsViewModel } from './cybercom.store.council';
 import { AddMemberStore } from './cybercom.store.membership.add';
 import { RemoveMemberStore, MembershipRemovalsViewModel } from './cybercom.store.membership.remove';
 import { MembershipProposalsViewModel } from './cybercom.store.membership';
+import { ChangeVotingParametersStore } from "./cybercom.store.voting_parameters.add";
 import {
     CybercomDAO__factory,
     CybercomDAO,
@@ -30,18 +31,23 @@ export class CybercomStore implements ContractModel {
     signer: ethers.JsonRpcSigner | undefined = undefined;
     activity: string = '';
     cybercomContract: string | undefined = import.meta.env.VITE_CYBERCOM_DAO_CONTRACT;
-    votingParameters: VotingParametersViewModel[] = [];
+    votingParameters: VotingParametersViewModels = new VotingParametersViewModels();
     councils: CouncilsViewModel = new CouncilsViewModel();
     nations: NationViewModel[] = [];
     addMembershipProposal: AddMemberStore
     membershipProposals: MembershipProposalsViewModel;
     removeMemberStore: RemoveMemberStore;
     removeMemberships: MembershipRemovalsViewModel;
+    changeVotingParameters: VotingParametersProposalsViewModel;
+    changeVotingParametersStore: ChangeVotingParametersStore;
+
     constructor() {
         this.addMembershipProposal = new AddMemberStore(this, this.councils);
         this.membershipProposals = new MembershipProposalsViewModel(this, this.councils);
         this.removeMemberStore = new RemoveMemberStore(this, this.councils);
         this.removeMemberships = new MembershipRemovalsViewModel(this, this.councils);
+        this.changeVotingParametersStore = new ChangeVotingParametersStore(this, this.councils, this.votingParameters);
+        this.changeVotingParameters = new VotingParametersProposalsViewModel(this, this.councils);
         makeAutoObservable(this);
     }
 
@@ -178,13 +184,13 @@ export class CybercomStore implements ContractModel {
             const councilManagementContract = CouncilManager__factory.connect(addresses.councilManagementAddress, this.signer);
             const councils = await councilManagementContract.getCouncils();
             runInAction(() => {
-                this.votingParameters.length = 0;
+                const votingParameters: VotingParametersViewModel[] = [];
                 const cvms: CouncilViewModel[] = [];
                 this.nations.length = 0;
                 councils.forEach((c) => {
                     const vp = new VotingParametersViewModel();
                     vp.updateObj(c.name, c.votingParameters);
-                    this.votingParameters.push(vp);
+                    votingParameters.push(vp);
                     const cvm = new CouncilViewModel();
                     cvm.updateObj(c);
                     cvm.groups.forEach((g) => {
@@ -195,7 +201,9 @@ export class CybercomStore implements ContractModel {
                     cvms.push(cvm);
                 });
                 this.councils.load(cvms);
+                this.votingParameters.updateObj(votingParameters);
             });
+            
            
         } finally {
             runInAction(() => {
