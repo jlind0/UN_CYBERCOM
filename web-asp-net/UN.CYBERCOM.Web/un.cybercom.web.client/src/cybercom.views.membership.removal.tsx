@@ -93,7 +93,7 @@ const MembershipRemovalTableView = observer(({ proposals }: RemoveMembershipTabl
                                                     onClick={async () => await item.performVote()}>Cast Vote</CButton>
                                             </>
                                         )}
-                                        {item.duration && item.duration <= new Date() && (
+                                        {item.duration && item.duration <= new Date() && item.isProcessing === false && (
                                             <>
                                                 <CButton
                                                     color="primary"
