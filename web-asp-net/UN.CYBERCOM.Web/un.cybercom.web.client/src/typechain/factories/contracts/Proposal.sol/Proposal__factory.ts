@@ -16,6 +16,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ClosedForDocumentAdd",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "VotingClosed",
     type: "error",
   },
@@ -183,6 +188,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getThreshold",
+    outputs: [
+      {
+        internalType: "uint16",
+        name: "",
+        type: "uint16",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {

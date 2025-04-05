@@ -75,6 +75,7 @@ export interface ProposalInterface extends Interface {
       | "addDocument"
       | "duration"
       | "getDocuments"
+      | "getThreshold"
       | "getVotes"
       | "id"
       | "isProcessing"
@@ -106,6 +107,10 @@ export interface ProposalInterface extends Interface {
   encodeFunctionData(functionFragment: "duration", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getDocuments",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getThreshold",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getVotes", values?: undefined): string;
@@ -157,6 +162,10 @@ export interface ProposalInterface extends Interface {
   decodeFunctionResult(functionFragment: "duration", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getDocuments",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getThreshold",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
@@ -317,6 +326,8 @@ export interface Proposal extends BaseContract {
     "view"
   >;
 
+  getThreshold: TypedContractMethod<[], [bigint], "view">;
+
   getVotes: TypedContractMethod<
     [],
     [MembershipManagement.VoteStructOutput[]],
@@ -388,6 +399,9 @@ export interface Proposal extends BaseContract {
   getFunction(
     nameOrSignature: "getDocuments"
   ): TypedContractMethod<[], [MembershipManagement.DocStructOutput[]], "view">;
+  getFunction(
+    nameOrSignature: "getThreshold"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getVotes"
   ): TypedContractMethod<[], [MembershipManagement.VoteStructOutput[]], "view">;

@@ -155,6 +155,7 @@ export interface MembershipProposalInterface extends Interface {
       | "getDocuments"
       | "getMembershipResponse"
       | "getNation"
+      | "getThreshold"
       | "getVotes"
       | "groupId"
       | "id"
@@ -194,6 +195,10 @@ export interface MembershipProposalInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getNation", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getThreshold",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "getVotes", values?: undefined): string;
   encodeFunctionData(functionFragment: "groupId", values?: undefined): string;
   encodeFunctionData(functionFragment: "id", values?: undefined): string;
@@ -251,6 +256,10 @@ export interface MembershipProposalInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getNation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getThreshold",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "groupId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "id", data: BytesLike): Result;
@@ -422,6 +431,8 @@ export interface MembershipProposal extends BaseContract {
     "view"
   >;
 
+  getThreshold: TypedContractMethod<[], [bigint], "view">;
+
   getVotes: TypedContractMethod<
     [],
     [MembershipManagement.VoteStructOutput[]],
@@ -505,6 +516,9 @@ export interface MembershipProposal extends BaseContract {
   getFunction(
     nameOrSignature: "getNation"
   ): TypedContractMethod<[], [MembershipManagement.NationStructOutput], "view">;
+  getFunction(
+    nameOrSignature: "getThreshold"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getVotes"
   ): TypedContractMethod<[], [MembershipManagement.VoteStructOutput[]], "view">;

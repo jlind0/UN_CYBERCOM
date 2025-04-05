@@ -102,6 +102,7 @@ contract Voting is VRFConsumerBaseV2Plus {
         if(proposalTallyResults[proposalId].proposalId == proposalId)
             return proposalTallyResults[proposalId].status;
         Proposal prop = Proposal(proposals[proposalId]);
+        uint16 threshold = prop.getThreshold();
         MembershipManagement.TallyResult storage tr = proposalTallyResults[proposalId];
         tr.proposalId = proposalId;
         MembershipManagement.Vote[] memory vs = prop.getVotes();
@@ -150,10 +151,11 @@ contract Voting is VRFConsumerBaseV2Plus {
         }
         cvs = cvs2;
         cvs = selectVotes(cvs, prop);
-        cvs = populateGroupScore(cvs);
+        (MembershipManagement.CouncilVotes[] memory cvs3, uint maxScore) = populateGroupScore(cvs);
+        cvs = cvs3;
         int finalScore = tallyScore(cvs);
         MembershipManagement.ApprovalStatus status = MembershipManagement.ApprovalStatus.Pending;
-        if(finalScore > 0)
+        if(finalScore > 0 && uint(finalScore)*100 >= maxScore*threshold)
             status = MembershipManagement.ApprovalStatus.Approved;
         else
             status = MembershipManagement.ApprovalStatus.Rejected;
@@ -242,20 +244,23 @@ contract Voting is VRFConsumerBaseV2Plus {
         return score;
     }
     function populateGroupScore(MembershipManagement.CouncilVotes[] memory cvs)
-        private pure returns(MembershipManagement.CouncilVotes[] memory rtn)
+        private pure returns(MembershipManagement.CouncilVotes[] memory rtn, uint maxScore)
     {
         uint y = 0;
-        int result = 0;
         while(y < cvs.length){
             uint g = 0;
             MembershipManagement.CouncilVotes memory cv = cvs[y];
+            int result = 0;
+            uint maxResult = 0;
             int[] memory results = new int[](cv.votes.length);
-
+            uint[] memory maxScores = new uint[](cv.votes.length);
             while(g < cv.votes.length){
                 MembershipManagement.CouncilGroupVotes memory cgv = cv.votes[g];
                 uint b = 0;
                 int rrs = 0;
+                uint mrrs =0;
                 int[] memory rds = new int[](cgv.votes.length);
+                uint[] memory maxRds = new uint[](cgv.votes.length);
                 while(b < cgv.votes.length){
                     MembershipManagement.Vote memory vv = cgv.votes[b];
                     int vvn = 0;
@@ -263,26 +268,45 @@ contract Voting is VRFConsumerBaseV2Plus {
                         vvn = 1;
                     else
                         vvn = -1;
-                    rrs = Utils.multiply(Math.mulDiv(100000, cv.votingParameters.voteNumerator, cv.votingParameters.voteDenominator), vvn);
-                    rds[b] = rrs;
+                    int rs = Utils.multiply(Math.mulDiv(100000, cv.votingParameters.voteNumerator, cv.votingParameters.voteDenominator), vvn);
+                    rds[b] = rs;
+                    rrs += rs;
+                    maxRds[b] = uint(rrs >= 0 ? rrs : -rrs);
+                    mrrs += maxRds[b];
                     b++;
                 }
+                uint iMaxScore;
                 if(cv.votingParameters.avgVotes)
+                {
                     cgv.score += Utils.calculateAverage(rds);
+                    iMaxScore += maxRds[0];
+                }
                 else
+                {
                     cgv.score += rrs;
+                    iMaxScore = mrrs;
+                }
                 
                 int v = cgv.score;
                 int rr = Utils.multiply(Math.mulDiv(100000, cv.votingParameters.sumNumerator, cv.votingParameters.sumDenominator), v);
+                int mrr = Utils.multiply(Math.mulDiv(100000, cv.votingParameters.sumNumerator, cv.votingParameters.sumDenominator), int(iMaxScore));
+                maxResult += uint(mrr);
+                maxScores[g] = uint(mrr);
                 results[g] = rr;
                 result += rr;
                 cv.votes[g] = cgv;
                 g++;
             }
             if(cv.votingParameters.avgVotes)
+            {
                 cv.score += Utils.calculateAverage(results);
+                maxScore += maxScores[0];
+            }
             else
+            {
                 cv.score += result;
+                maxScore += maxResult;
+            }
             cvs[y] = cv;
             y++;
         }

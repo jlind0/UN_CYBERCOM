@@ -55,10 +55,12 @@ abstract contract Proposal is DocumentsHolder {
         contractAddresses = _contractAddresses;
         id = _id;
         proposalType = _proposalType;
-        duration = _duration < 1 minutes ? 1 minutes : _duration;
+        duration = _duration < 5 minutes ? 5 minutes : _duration;
         status = MembershipManagement.ApprovalStatus.Entered;
         timestamp = block.timestamp;
     }
+
+    function getThreshold() public virtual pure returns(uint16);
     
     /**
      * @dev Updates the status of the proposal.
@@ -125,7 +127,10 @@ abstract contract Proposal is DocumentsHolder {
         status = MembershipManagement.ApprovalStatus.Pending;
         emit VotingStarted(id);
     }
+    error ClosedForDocumentAdd();
     function addDocument(address signer, string memory title, string memory url, bytes32 docHash, bytes memory signature) isFromDAOorVoting() public override{
+        if(status != MembershipManagement.ApprovalStatus.Entered)
+            revert ClosedForDocumentAdd();
         super.addDocument(signer, title, url, docHash, signature);
     }
     // Other functions such as addDocument() are unchanged
@@ -189,7 +194,9 @@ contract MembershipProposal is Proposal {
             address(this)
         );
     }
-
+    function getThreshold() public pure override returns(uint16){
+        return 51;
+    } 
     // Other functions and code specific to MembershipProposal are unchanged
 }
 
@@ -222,6 +229,9 @@ contract MembershipRemovalProposal is Proposal{
             address(this)
         );
     }
+    function getThreshold() public pure override returns(uint16){
+        return 51;
+    } 
 }
 contract ChangeVotingParametersProposal is Proposal{
     MembershipManagement.ChangeVotingParametersRole[] parameters;
@@ -263,6 +273,9 @@ contract ChangeVotingParametersProposal is Proposal{
             address(this)
         );
     }
+    function getThreshold() public pure override returns(uint16){
+        return 67;
+    } 
 }
 contract ProposalStorageManager{
     address daoAddress;

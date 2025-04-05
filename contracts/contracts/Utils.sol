@@ -93,11 +93,7 @@ library Utils {
     }
 
     function multiply(uint a, int b) internal pure returns (int) {
-        if (b < 0) {
-            return -int(a) * b;
-        } else {
-            return int(a) * b;
-        }
+        return int256(a) * b;
     }
     
     // Add other utility functions here...
