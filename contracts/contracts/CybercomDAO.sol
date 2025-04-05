@@ -11,7 +11,7 @@ import "./Membership.sol";
 contract CybercomDAO is ReentrancyGuard, AccessControl{
     uint MIN_VOTE_DURATION = 1 minutes;
     MembershipManagement.ContractAddresses public contracts;
-    uint64 subscriptionId;
+    uint256 subscriptionId;
     bool isInitialized = false;
     function getContractAddresses() public view returns(MembershipManagement.ContractAddresses memory){
         return contracts;
@@ -45,7 +45,7 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
     function closeInitialization() external{
         isInitialized = true;
     } 
-    constructor(uint64 _subscriptionId){
+    constructor(uint256 _subscriptionId){
         subscriptionId = _subscriptionId;
         
     }

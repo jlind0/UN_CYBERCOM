@@ -9,8 +9,8 @@ export class VoteViewModel {
     proposalId: bigint | undefined = undefined;
     councils: CouncilsViewModel;
     constructor(councils: CouncilsViewModel) {
-        this.councils = councils;
         makeAutoObservable(this);
+        this.councils = councils;
     }
 
     updateObj(obj: MembershipManagement.VoteStructOutput) {

@@ -7,10 +7,9 @@ export enum ApprovalStatus {
 }
 export function fromUnixTimestamp(timestamp: bigint | number): Date {
     const seconds = typeof timestamp === "bigint" ? Number(timestamp) : timestamp;
-    let dt = new Date(1970, 1, 1);
-    dt = new Date(dt.getTime() + seconds * 1000);
-    return dt;
+    return new Date(seconds * 1000); // Multiply by 1000 to convert seconds to milliseconds
 }
+
 
 export async function computeHash(url: string): Promise<string> {
     const response = await fetch(url);

@@ -16,7 +16,7 @@ import {
     VotingParametersManager__factory
 } from './typechain';
 
-const subscriptionId = BigInt(import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID);
+const subscriptionId : string = import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID;
 
 export class CybercomStore implements ContractModel {
     deploying: boolean = false;

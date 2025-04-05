@@ -8,6 +8,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -17,6 +18,7 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "../common";
@@ -133,13 +135,29 @@ export declare namespace MembershipManagement {
 export interface VotingInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "acceptOwnership"
       | "addProposal"
       | "getVoteTally"
+      | "owner"
       | "prepareTally"
       | "rawFulfillRandomWords"
+      | "s_vrfCoordinator"
+      | "setCoordinator"
       | "tallyVotes"
+      | "transferOwnership"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "CoordinatorSet"
+      | "OwnershipTransferRequested"
+      | "OwnershipTransferred"
+  ): EventFragment;
+
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "addProposal",
     values: [AddressLike]
@@ -148,6 +166,7 @@ export interface VotingInterface extends Interface {
     functionFragment: "getVoteTally",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "prepareTally",
     values: [BigNumberish]
@@ -157,10 +176,26 @@ export interface VotingInterface extends Interface {
     values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
+    functionFragment: "s_vrfCoordinator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setCoordinator",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tallyVotes",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addProposal",
     data: BytesLike
@@ -169,6 +204,7 @@ export interface VotingInterface extends Interface {
     functionFragment: "getVoteTally",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "prepareTally",
     data: BytesLike
@@ -177,7 +213,57 @@ export interface VotingInterface extends Interface {
     functionFragment: "rawFulfillRandomWords",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "s_vrfCoordinator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setCoordinator",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tallyVotes", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+}
+
+export namespace CoordinatorSetEvent {
+  export type InputTuple = [vrfCoordinator: AddressLike];
+  export type OutputTuple = [vrfCoordinator: string];
+  export interface OutputObject {
+    vrfCoordinator: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferRequestedEvent {
+  export type InputTuple = [from: AddressLike, to: AddressLike];
+  export type OutputTuple = [from: string, to: string];
+  export interface OutputObject {
+    from: string;
+    to: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [from: AddressLike, to: AddressLike];
+  export type OutputTuple = [from: string, to: string];
+  export interface OutputObject {
+    from: string;
+    to: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export interface Voting extends BaseContract {
@@ -223,6 +309,8 @@ export interface Voting extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
   addProposal: TypedContractMethod<
     [proposalAddress: AddressLike],
     [void],
@@ -234,6 +322,8 @@ export interface Voting extends BaseContract {
     [MembershipManagement.TallyResultStructOutput],
     "view"
   >;
+
+  owner: TypedContractMethod<[], [string], "view">;
 
   prepareTally: TypedContractMethod<
     [proposalId: BigNumberish],
@@ -247,9 +337,23 @@ export interface Voting extends BaseContract {
     "nonpayable"
   >;
 
+  s_vrfCoordinator: TypedContractMethod<[], [string], "view">;
+
+  setCoordinator: TypedContractMethod<
+    [_vrfCoordinator: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   tallyVotes: TypedContractMethod<
     [proposalId: BigNumberish],
     [bigint],
+    "nonpayable"
+  >;
+
+  transferOwnership: TypedContractMethod<
+    [to: AddressLike],
+    [void],
     "nonpayable"
   >;
 
@@ -257,6 +361,9 @@ export interface Voting extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "acceptOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "addProposal"
   ): TypedContractMethod<[proposalAddress: AddressLike], [void], "nonpayable">;
@@ -268,6 +375,9 @@ export interface Voting extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "prepareTally"
   ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "nonpayable">;
   getFunction(
@@ -278,8 +388,72 @@ export interface Voting extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "s_vrfCoordinator"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "setCoordinator"
+  ): TypedContractMethod<[_vrfCoordinator: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "tallyVotes"
   ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
 
-  filters: {};
+  getEvent(
+    key: "CoordinatorSet"
+  ): TypedContractEvent<
+    CoordinatorSetEvent.InputTuple,
+    CoordinatorSetEvent.OutputTuple,
+    CoordinatorSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferRequested"
+  ): TypedContractEvent<
+    OwnershipTransferRequestedEvent.InputTuple,
+    OwnershipTransferRequestedEvent.OutputTuple,
+    OwnershipTransferRequestedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
+  >;
+
+  filters: {
+    "CoordinatorSet(address)": TypedContractEvent<
+      CoordinatorSetEvent.InputTuple,
+      CoordinatorSetEvent.OutputTuple,
+      CoordinatorSetEvent.OutputObject
+    >;
+    CoordinatorSet: TypedContractEvent<
+      CoordinatorSetEvent.InputTuple,
+      CoordinatorSetEvent.OutputTuple,
+      CoordinatorSetEvent.OutputObject
+    >;
+
+    "OwnershipTransferRequested(address,address)": TypedContractEvent<
+      OwnershipTransferRequestedEvent.InputTuple,
+      OwnershipTransferRequestedEvent.OutputTuple,
+      OwnershipTransferRequestedEvent.OutputObject
+    >;
+    OwnershipTransferRequested: TypedContractEvent<
+      OwnershipTransferRequestedEvent.InputTuple,
+      OwnershipTransferRequestedEvent.OutputTuple,
+      OwnershipTransferRequestedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+  };
 }

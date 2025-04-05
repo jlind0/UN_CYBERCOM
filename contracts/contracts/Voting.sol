@@ -2,18 +2,17 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "./Utils.sol";
 import "./MembershipManagement.sol";
 import "./Proposal.sol";
 import "./CybercomDAO.sol";
-contract Voting is VRFConsumerBaseV2{
-    uint64 s_subscriptionId;
-    VRFCoordinatorV2Interface COORDINATOR;
-    address constant vrfCoordinator = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
-    bytes32 constant s_keyHash = 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
-    uint32 constant callbackGasLimit = 1000000;
+contract Voting is VRFConsumerBaseV2Plus {
+    uint256 s_subscriptionId;
+    address constant vrfCoordinator = 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B;
+    bytes32 constant s_keyHash = 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
+    uint32 constant callbackGasLimit = 300000;
     uint16 constant requestConfirmations = 3;
     uint[] proposalIds;
     mapping(uint => address) proposals;
@@ -21,8 +20,7 @@ contract Voting is VRFConsumerBaseV2{
     address  daoAddress;
     address  councilManagerAddress;
     mapping(uint => MembershipManagement.TallyResult) proposalTallyResults;
-    constructor(uint64 subscriptionId, address _daoAddress, address _councilManagerAddress) VRFConsumerBaseV2(vrfCoordinator) {
-        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
+    constructor(uint256 subscriptionId, address _daoAddress, address _councilManagerAddress) VRFConsumerBaseV2Plus (vrfCoordinator) {
         s_subscriptionId = subscriptionId;
         daoAddress = _daoAddress;
         councilManagerAddress = _councilManagerAddress;
@@ -48,12 +46,17 @@ contract Voting is VRFConsumerBaseV2{
             p.duration() < block.timestamp)
         {
             // Will revert if subscription is not set and funded.
-            requestId = COORDINATOR.requestRandomWords(
-            s_keyHash,
-            s_subscriptionId,
-            requestConfirmations,
-            callbackGasLimit,
-            1
+            requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: s_keyHash,
+                subId: s_subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: 1,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    VRFV2PlusClient.ExtraArgsV1({nativePayment: true})
+                    )
+                })
             );
             p.setProcessing(true);
             requestIdToProposal[requestId] = proposalId;
@@ -63,7 +66,7 @@ contract Voting is VRFConsumerBaseV2{
     }
     error InvalidProposal();
     error InvalidContractState();
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) 
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) 
     internal override {
         if(requestIdToProposal[requestId] == 0)
             revert InvalidProposal();

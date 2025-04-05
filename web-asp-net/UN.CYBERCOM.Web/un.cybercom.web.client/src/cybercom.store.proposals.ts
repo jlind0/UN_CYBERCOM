@@ -15,6 +15,7 @@ export abstract class ProposalViewModel<TProposalDTO> {
     contractModel: ContractModel;
     documents: DocumentViewModel[] = [];
     addDocument: AddDocumentViewModel | undefined = undefined;
+    vote: boolean = false;
     constructor(contractModel: ContractModel) {
         this.contractModel = contractModel;
     }
@@ -31,6 +32,34 @@ export abstract class ProposalViewModel<TProposalDTO> {
                     this.documents.push(vm);
                 });
             });
+        }
+    }
+    async startVoting() {
+        if (this.id && this.contractModel.contract && this.contractModel.signer) {
+            const resp = await this.contractModel.contract.startVoting(this.id);
+            await resp.wait();
+            alert("Voting started");
+        }
+    }
+    async performVote() {
+        if (this.id && this.contractModel.contract && this.contractModel.signer) {
+            const resp = await this.contractModel.contract.performVote(this.id, this.vote);
+            await resp.wait();
+            alert("Vote submitted");
+        }
+    }
+    async startTally() {
+        if (this.id && this.contractModel.contract && this.contractModel.signer) {
+            const resp = await this.contractModel.contract.prepareTally(this.id);
+            await resp.wait();
+            alert("Tally started");
+        }
+    }
+    async completeTally() {
+        if (this.id && this.contractModel.contract && this.contractModel.signer) {
+            const resp = await this.contractModel.contract.completeVoting(this.id);
+            await resp.wait();
+            alert("Tally finished");
         }
     }
 }
@@ -70,10 +99,10 @@ export abstract class ProposalsViewModel<TProposalDTO, TViewModel extends Propos
                         this.pendingProposals.push(v);
                     });
                     ready.forEach((v) => {
-                        this.acceptedProposals.push(v);
+                        this.readyProposals.push(v);
                     });
                     accepted.forEach((v) => {
-                        this.readyProposals.push(v);
+                        this.acceptedProposals.push(v);
                     });
                     rejected.forEach((v) => {
                         this.rejectedProposals.push(v);

@@ -1,7 +1,7 @@
 import { CybercomStoreParameter, MembershipProposalTableParameters, AddMembershipProposalParameter } from './cybercom.views.common';
 import { ApprovalStatus } from './cybercom.store.common'; 
 import { observer } from 'mobx-react-lite';
-import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CFormSelect, CForm, CFormInput, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
+import { CButton, CModal, CModalBody, CModalFooter, CFormCheck, CModalHeader, CModalTitle, CFormSelect, CForm, CFormInput, CTab, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabList, CTabPanel, CTabs } from '@coreui/react'
 const MembershipProposalsView = observer(({ store }: CybercomStoreParameter) => (
     <>
         <CButton color="primary" onClick={() => store.membershipProposals.load()}>
@@ -67,6 +67,7 @@ const MembershipProposalTableView = observer(({ proposals }: MembershipProposalT
                             <CButton color="primary" onClick={async () => await item.load()}>Load Documents</CButton>
                             {item && item.status == ApprovalStatus.Entered && item.addDocument && (
                                 <>
+                                    <CButton color="primary" onClick={async () => await item.startVoting()}>Start Voting</CButton>
                                     <CButton color="primary" onClick={() => item.addDocument &&  (item.addDocument.isOpen = true)}>
                                         Add Document
                                     </CButton>
@@ -135,6 +136,37 @@ const MembershipProposalTableView = observer(({ proposals }: MembershipProposalT
                         </CTableDataCell>
                         {item.status != ApprovalStatus.Entered && (
                             <CTableDataCell>
+                                {item.status == ApprovalStatus.Pending && (
+                                    <>
+                                        {item.duration && item.duration > new Date() && (
+                                            <>
+                                            <CFormCheck
+                                                type="checkbox"
+                                                label="Approve"
+                                                checked={item.vote}
+                                                onChange={(evt) => (item.vote = evt.target.checked)} />
+                                            <CButton
+                                                color="primary"
+                                                        onClick={async () => await item.performVote()}>Cast Vote</CButton>
+                                            </>
+                                        )}
+                                        {item.duration && item.duration <= new Date() && (
+                                            <>
+                                                <CButton
+                                                    color="primary"
+                                                        onClick={async () => await item.startTally()}>Start Tally</CButton>
+                                            </>
+                                        )}
+                                        
+                                    </>
+                                )}
+                                {item.status == ApprovalStatus.Ready && (
+                                    <>
+                                        <CButton
+                                            color="primary"
+                                            onClick={async () => await item.completeTally()}>Complete Tally</CButton>
+                                    </>
+                                )}
                                 {item.votes.map((vote, groupIndex) => (
                                     <div key={groupIndex}>
                                         {vote.member?.name} {vote.voteCasted} {vote.timestamp?.toISOString()}

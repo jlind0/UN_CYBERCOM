@@ -64,7 +64,8 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             proposalAddress: observable,
             documents: observable,
             addDocument: observable,
-            id: observable
+            id: observable,
+            vote: observable
         });
     }
     updateObj(obj: MembershipManagement.MembershipProposalResponseStructOutput) {

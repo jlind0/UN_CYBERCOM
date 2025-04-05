@@ -10,6 +10,7 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 100,
       },
+      evmVersion: "cancun",
     },
   },
   typechain: {
