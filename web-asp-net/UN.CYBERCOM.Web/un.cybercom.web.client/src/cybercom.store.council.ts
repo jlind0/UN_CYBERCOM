@@ -33,15 +33,16 @@ export class CouncilsViewModel {
         return group;
     }
     getNation(address: string): NationViewModel | undefined {
+        let nation: NationViewModel | undefined = undefined;
         this.councils.forEach(c => {
             c.groups.forEach(g => {
                 g.nations.forEach(n => {
                     if (n.id == address)
-                        return n;
+                        nation = n;
                 });
             });
         });
-        return;
+        return nation;
     }
 }
 export class CouncilViewModel {

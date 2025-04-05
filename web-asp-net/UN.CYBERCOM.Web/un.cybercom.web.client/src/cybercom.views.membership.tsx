@@ -169,7 +169,7 @@ const MembershipProposalTableView = observer(({ proposals }: MembershipProposalT
                                 )}
                                 {item.votes.map((vote, groupIndex) => (
                                     <div key={groupIndex}>
-                                        {vote.member?.name} {vote.voteCasted} {vote.timestamp?.toISOString()}
+                                        {vote.member?.name} {vote.voteCasted?.toString()} {vote.timestamp?.toISOString()}
                                     </div>
                                 ))}
                             </CTableDataCell>
