@@ -1,13 +1,12 @@
 import { runInAction, makeObservable, observable } from 'mobx';
-import { AddDocumentViewModel, DocumentViewModel } from './cybercom.store.documents';
+import { AddDocumentViewModel} from './cybercom.store.documents';
 import { MembershipManagement } from './typechain/contracts/Membership.sol/MembershipManager';
 import { NationViewModel, CouncilsViewModel, CouncilGroupViewModel, CouncilViewModel } from './cybercom.store.council';
 import { ProposalViewModel, ProposalsViewModel } from './cybercom.store.proposals';
 import { ApprovalStatus, fromUnixTimestamp } from './cybercom.store.common';
 import { VoteViewModel } from './cybercom.store.voting'; 
 import {
-    MembershipManager__factory,
-    Proposal__factory
+    MembershipManager__factory
 } from './typechain';
 
 
@@ -89,20 +88,6 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             this.proposalAddress = obj.proposalAddress;
             this.addDocument = new AddDocumentViewModel(this.contractModel, obj.proposalAddress);
         });
-    }
-    async load() {
-        if (this.proposalAddress && this.contractModel.signer) {
-            const prop = Proposal__factory.connect(this.proposalAddress, this.contractModel.signer);
-            const docs = await prop.getDocuments();
-            runInAction(() => {
-                this.documents.length = 0;
-                docs.forEach(d => {
-                    const vm = new DocumentViewModel(this.contractModel);
-                    vm.updateObj(d);
-                    this.documents.push(vm);
-                });
-            });
-        }
     }
 }
 

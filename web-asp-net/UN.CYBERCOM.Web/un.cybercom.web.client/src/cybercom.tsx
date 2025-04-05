@@ -5,6 +5,7 @@ import { MembershipProposalsView, AddMemberProposalView } from './cybercom.views
 import { CButton, CTab, CTabContent, CTabList, CTabPanel, CTabs } from '@coreui/react'
 import { VotingParametersView } from './cybercom.views.voting';
 import { NationsView, CouncilsView } from './cybercom.views.council';
+import { MembershipRemovalsView, AddRemoveMemberProposalView } from './cybercom.views.membership.removal';
 const cybercomStore = new CybercomStore();
 
 const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
@@ -23,7 +24,8 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         </CButton>
         {store.contract && (
             <div>
-                <AddMemberProposalView addStore={store.addMembershipProposal}/>
+                <AddMemberProposalView addStore={store.addMembershipProposal} />
+                <AddRemoveMemberProposalView removeStore={store.removeMemberStore} />
                 <CTabs activeItemKey="addresses">
                     <CTabList variant="tabs">
                         <CTab itemKey="addresses">Addresses</CTab>
@@ -31,6 +33,7 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         <CTab itemKey="nations">Nations</CTab>
                         <CTab itemKey="voting_parameters">Voting Parameters</CTab>
                         <CTab itemKey="membershipProposals">Membership Proposals</CTab>
+                        <CTab itemKey="membershipRemovals">Membership Removal Proposals</CTab>
                     </CTabList>
                     <CTabContent>
                         <CTabPanel className="p-3" itemKey="addresses">
@@ -51,6 +54,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         </CTabPanel>
                         <CTabPanel className="p-3" itemKey="membershipProposals">
                             <MembershipProposalsView store={store} />
+                        </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="membershipRemovals">
+                            <MembershipRemovalsView store={store} />"
                         </CTabPanel>
                     </CTabContent>
                 </CTabs>

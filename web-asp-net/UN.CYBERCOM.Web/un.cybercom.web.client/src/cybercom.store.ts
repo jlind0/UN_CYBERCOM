@@ -4,6 +4,7 @@ import { VotingParametersViewModel } from './cybercom.store.voting_parameters';
 import { ContractAddressesViewModel } from './cybercom.store.contract_addresses';
 import { CouncilViewModel, NationViewModel, CouncilsViewModel } from './cybercom.store.council';
 import { AddMemberStore } from './cybercom.store.membership.add';
+import { RemoveMemberStore, MembershipRemovalsViewModel } from './cybercom.store.membership.remove';
 import { MembershipProposalsViewModel } from './cybercom.store.membership';
 import {
     CybercomDAO__factory,
@@ -34,9 +35,13 @@ export class CybercomStore implements ContractModel {
     nations: NationViewModel[] = [];
     addMembershipProposal: AddMemberStore
     membershipProposals: MembershipProposalsViewModel;
+    removeMemberStore: RemoveMemberStore;
+    removeMemberships: MembershipRemovalsViewModel;
     constructor() {
         this.addMembershipProposal = new AddMemberStore(this, this.councils);
         this.membershipProposals = new MembershipProposalsViewModel(this, this.councils);
+        this.removeMemberStore = new RemoveMemberStore(this, this.councils);
+        this.removeMemberships = new MembershipRemovalsViewModel(this, this.councils);
         makeAutoObservable(this);
     }
 

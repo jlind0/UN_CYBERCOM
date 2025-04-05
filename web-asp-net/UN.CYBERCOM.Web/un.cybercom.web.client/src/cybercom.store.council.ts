@@ -3,14 +3,21 @@ import { MembershipManagement } from './typechain/contracts/CouncilManager';
 import { MembershipManagement as MM } from './typechain/contracts/Membership.sol/MembershipManager';
 export class CouncilsViewModel {
     councils: CouncilViewModel[] = [];
+    nations: NationViewModel[] = [];
     constructor() {
         makeAutoObservable(this);
     }
     load(vms: CouncilViewModel[]) {
         runInAction(() => {
             this.councils.length = 0;
+            this.nations.length = 0;
             vms.forEach(c => {
                 this.councils.push(c);
+                c.groups.forEach((g) => {
+                    g.nations.forEach((n) => {
+                        this.nations.push(n);
+                    });
+                });
             });
         });
     }
