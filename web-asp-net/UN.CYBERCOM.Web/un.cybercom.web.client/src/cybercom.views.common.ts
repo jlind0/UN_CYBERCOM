@@ -4,6 +4,7 @@ import { MembershipProposalViewModel } from './cybercom.store.membership';
 import { MembershipRemovalViewModel } from './cybercom.store.membership.remove';
 import { RemoveMemberStore } from './cybercom.store.membership.remove';
 import { AddDocumentViewModel } from './cybercom.store.documents';
+import { ProposalViewModel } from './cybercom.store.proposals';
 export interface CybercomStoreParameter {
     store: CybercomStore;
 }
@@ -22,4 +23,8 @@ export interface RemoveMembershipTableParameters {
 }
 export interface AddDocumentParameter {
     addDocument: AddDocumentViewModel | undefined;
+}
+
+export interface ProposalItemParameter {
+    item: ProposalViewModel<unknown>;
 }
