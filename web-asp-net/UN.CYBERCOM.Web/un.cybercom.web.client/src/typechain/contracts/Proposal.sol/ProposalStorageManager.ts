@@ -27,13 +27,17 @@ export interface ProposalStorageManagerInterface extends Interface {
       | "addChangeParametersProposal"
       | "addMembershipProposal"
       | "addMembershipRemovalProposal"
+      | "addPackageProposal"
       | "getChangeParametersProposalAddresses"
       | "getMembershipProposal"
       | "getMembershipProposalAddresses"
       | "getMembershipRemovalProposal"
       | "getMembershipRemovalProposalAddresses"
       | "getNextProposalId"
+      | "getPackageProposalAddresses"
       | "getProposal"
+      | "initalize"
+      | "isInitalized"
       | "proposalCount"
       | "proposals"
       | "setMembershipProposal"
@@ -51,6 +55,10 @@ export interface ProposalStorageManagerInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addMembershipRemovalProposal",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addPackageProposal",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -78,8 +86,20 @@ export interface ProposalStorageManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getPackageProposalAddresses",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getProposal",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initalize",
+    values: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isInitalized",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "proposalCount",
@@ -115,6 +135,10 @@ export interface ProposalStorageManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "addPackageProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getChangeParametersProposalAddresses",
     data: BytesLike
   ): Result;
@@ -139,7 +163,16 @@ export interface ProposalStorageManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getPackageProposalAddresses",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initalize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isInitalized",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -222,6 +255,12 @@ export interface ProposalStorageManager extends BaseContract {
     "nonpayable"
   >;
 
+  addPackageProposal: TypedContractMethod<
+    [key: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getChangeParametersProposalAddresses: TypedContractMethod<
     [],
     [string[]],
@@ -250,7 +289,23 @@ export interface ProposalStorageManager extends BaseContract {
 
   getNextProposalId: TypedContractMethod<[], [bigint], "nonpayable">;
 
+  getPackageProposalAddresses: TypedContractMethod<[], [string[]], "view">;
+
   getProposal: TypedContractMethod<[key: BigNumberish], [string], "view">;
+
+  initalize: TypedContractMethod<
+    [
+      _daoAddress: AddressLike,
+      _membershipRemovalAddress: AddressLike,
+      _membershipManagerAddress: AddressLike,
+      _votingParametersManagerAddress: AddressLike,
+      _packageManagerAddress: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  isInitalized: TypedContractMethod<[], [boolean], "view">;
 
   proposalCount: TypedContractMethod<[], [bigint], "view">;
 
@@ -288,6 +343,9 @@ export interface ProposalStorageManager extends BaseContract {
     nameOrSignature: "addMembershipRemovalProposal"
   ): TypedContractMethod<[key: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "addPackageProposal"
+  ): TypedContractMethod<[key: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "getChangeParametersProposalAddresses"
   ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
@@ -306,8 +364,27 @@ export interface ProposalStorageManager extends BaseContract {
     nameOrSignature: "getNextProposalId"
   ): TypedContractMethod<[], [bigint], "nonpayable">;
   getFunction(
+    nameOrSignature: "getPackageProposalAddresses"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
     nameOrSignature: "getProposal"
   ): TypedContractMethod<[key: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "initalize"
+  ): TypedContractMethod<
+    [
+      _daoAddress: AddressLike,
+      _membershipRemovalAddress: AddressLike,
+      _membershipManagerAddress: AddressLike,
+      _votingParametersManagerAddress: AddressLike,
+      _packageManagerAddress: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "isInitalized"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "proposalCount"
   ): TypedContractMethod<[], [bigint], "view">;

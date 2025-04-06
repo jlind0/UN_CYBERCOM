@@ -16,6 +16,7 @@ export abstract class ProposalViewModel<TProposalDTO> {
     documents: DocumentViewModel[] = [];
     addDocument: AddDocumentViewModel | undefined = undefined;
     vote: boolean = false;
+    packageAddress: string | undefined = undefined;
     constructor(contractModel: ContractModel) {
         this.contractModel = contractModel;
     }

@@ -1,6 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
+import "@tenderly/hardhat-tenderly";
 
 const config: HardhatUserConfig = {
   solidity: {

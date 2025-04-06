@@ -60,6 +60,7 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: AddressLike;
     proposalAddress: AddressLike;
+    packageAddress: AddressLike;
   };
 
   export type MembershipRemovalResponseStructOutput = [
@@ -71,7 +72,8 @@ export declare namespace MembershipManagement {
     isProcessing: boolean,
     votingStarted: boolean,
     owner: string,
-    proposalAddress: string
+    proposalAddress: string,
+    packageAddress: string
   ] & {
     id: bigint;
     nationToRemove: MembershipManagement.NationStructOutput;
@@ -82,6 +84,7 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: string;
     proposalAddress: string;
+    packageAddress: string;
   };
 
   export type MembershipRemovalRequestStruct = {

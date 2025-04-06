@@ -21,6 +21,7 @@ abstract contract Proposal is DocumentsHolder {
     uint public randomNumber;
     bool public votingStarted = false;
     address public owner;
+    address public packageAddress;
     address[] voters;
     mapping(address => MembershipManagement.Vote) votes;
     MembershipManagement.ContractAddresses contractAddresses;
@@ -31,12 +32,12 @@ abstract contract Proposal is DocumentsHolder {
 
     error AuthorizationError();
     modifier isFromDAOorVoting() {
-        if(msg.sender != contractAddresses.daoAddress && msg.sender != contractAddresses.votingAddress && msg.sender != contractAddresses.membershipManagerAddress && msg.sender != contractAddresses.membershipRemovalAddress && msg.sender != owner) revert AuthorizationError();
+        if(msg.sender != contractAddresses.daoAddress && msg.sender != contractAddresses.votingAddress && msg.sender != contractAddresses.membershipManagerAddress && msg.sender != contractAddresses.membershipRemovalAddress && msg.sender != owner && msg.sender != packageAddress) revert AuthorizationError();
         _;
     }
 
     modifier isFromDAO() {
-        if(msg.sender != contractAddresses.daoAddress && msg.sender != contractAddresses.votingAddress && msg.sender != contractAddresses.membershipManagerAddress && msg.sender != contractAddresses.membershipRemovalAddress)revert AuthorizationError();
+        if(msg.sender != contractAddresses.daoAddress && msg.sender != contractAddresses.votingAddress && msg.sender != contractAddresses.membershipManagerAddress && msg.sender != contractAddresses.membershipRemovalAddress && msg.sender != packageAddress)revert AuthorizationError();
         _;
     }
 
@@ -60,8 +61,7 @@ abstract contract Proposal is DocumentsHolder {
         timestamp = block.timestamp;
     }
 
-    function getThreshold() public virtual pure returns(uint16);
-    
+    function getThreshold() public virtual view returns(uint16);
     /**
      * @dev Updates the status of the proposal.
      * @param _status The new status to be set for the proposal.
@@ -70,7 +70,13 @@ abstract contract Proposal is DocumentsHolder {
         status = _status;
         emit StatusUpdated(id, _status);
     }
-
+    error AlreadyInPackage();
+    function enlistPackage(address _packageAddress) public{
+        if(packageAddress != address(0))
+            revert AlreadyInPackage();
+        packageAddress = _packageAddress;
+        status = MembershipManagement.ApprovalStatus.Ready;
+    }
     /**
      * @dev Sets a random number for the proposal, typically used in voting processes.
      * @param random The random number to be set.
@@ -92,6 +98,11 @@ abstract contract Proposal is DocumentsHolder {
      * @return An array of Vote structs containing the details of each vote.
      */
     function getVotes() public view returns(MembershipManagement.Vote[] memory) {
+        if(packageAddress != address(0))
+        {
+            ProposalPackage pp = ProposalPackage(packageAddress);
+            return pp.getVotes();
+        }
         MembershipManagement.Vote[] memory vs = new MembershipManagement.Vote[](voters.length);
         for (uint i = 0; i < voters.length; i++) {
             vs[i] = votes[voters[i]];
@@ -106,6 +117,8 @@ abstract contract Proposal is DocumentsHolder {
      * @param member The address of the member casting the vote.
      */
     function vote(bool voteCasted, address member) public isFromDAO() {
+        if(packageAddress != address(0))
+            revert CanOnlyVotePackage();
         if(!votingStarted)revert VotingNotStarted();
         if(block.timestamp > duration)revert VotingClosed();
         if (votes[member].proposalId != id) {
@@ -114,14 +127,20 @@ abstract contract Proposal is DocumentsHolder {
         votes[member] = MembershipManagement.Vote(member, voteCasted, block.timestamp, id);
         emit VoteCasted(id, member, voteCasted);
     }
-
+    error OnlyOwner();
+    error VotingAlreadytStarted();
+    error CanOnlyVotePackage();
     /**
      * @dev Initiates the voting process for the proposal.
      * @param sender The address initiating the voting process.
      */
     function startVoting(address sender) public isFromDAO() {
-        require(sender == owner, "Only owner can start voting");
-        require(!votingStarted, "Voting already started");
+        if(sender != owner)
+            revert OnlyOwner();
+        if(votingStarted)
+            revert VotingAlreadytStarted();
+        if(packageAddress != address(0))
+            revert CanOnlyVotePackage();
         votingStarted = true;
         duration += block.timestamp;
         status = MembershipManagement.ApprovalStatus.Pending;
@@ -191,7 +210,8 @@ contract MembershipProposal is Proposal {
             isProcessing, 
             votingStarted, 
             owner, 
-            address(this)
+            address(this),
+            packageAddress
         );
     }
     function getThreshold() public pure override returns(uint16){
@@ -226,7 +246,8 @@ contract MembershipRemovalProposal is Proposal{
             isProcessing, 
             votingStarted, 
             owner, 
-            address(this)
+            address(this),
+            packageAddress
         );
     }
     function getThreshold() public pure override returns(uint16){
@@ -270,27 +291,94 @@ contract ChangeVotingParametersProposal is Proposal{
             isProcessing, 
             votingStarted, 
             owner, 
-            address(this)
+            address(this),
+            packageAddress
         );
     }
     function getThreshold() public pure override returns(uint16){
         return 67;
     } 
 }
+contract ProposalPackage is Proposal{
+    mapping(uint => address) proposalAddresses;
+    uint[] proposals;
+    constructor(address _owner, 
+        MembershipManagement.ContractAddresses memory _contractAddresses,
+        uint _id,
+        uint _duration)
+        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.Package, _duration){
+
+        }
+    error ProposalIsClosed();
+    function enlistProposal(address proposal) public isFromDAO(){
+        if(status != MembershipManagement.ApprovalStatus.Entered)
+            revert ProposalIsClosed();
+        Proposal p = Proposal(proposal);
+        uint propId = p.id();
+        proposals.push(propId);
+        proposalAddresses[propId] = proposal;
+    }
+    function getThreshold() public view override returns(uint16){
+        uint16 threshold = 51;
+        uint x = 0;
+        while(x < proposals.length){
+            Proposal p = Proposal(proposalAddresses[proposals[x]]);
+            uint16 t = p.getThreshold();
+            if(threshold < t)
+                threshold = t;
+            x++;
+        }
+        return threshold;
+    }
+    function getPackage() public view returns(MembershipManagement.ProposalPackageResponse memory){
+        return MembershipManagement.ProposalPackageResponse(
+            id,
+            proposals,
+            getVotes(),
+            duration,
+            status,
+            isProcessing,
+            votingStarted,
+            owner,
+            address(this)
+        );
+    }  
+}
 contract ProposalStorageManager{
     address daoAddress;
+    address membershipRemovalAddress;
+    address membershipManagerAddress;
+    address votingParametersManagerAddress;
+    address packageManagerAddress;
     mapping(address => address) membershipProposals;
     mapping(address => address) membershipRemovalProposals;
     mapping(uint => address) public proposals;
     address[] membershipProposalAddresses;
     address[] membershipRemovalProposalAddresses;
     address[] changeParametersProposalAddresses;
+    address[] packageProposalAddresses;
     uint public proposalCount = 0;
-    constructor(address _daoAddress){
+    bool public isInitalized = false;
+    error NotInitalized();
+    error AlreadyInitalized();
+    function initalize(
+        address _daoAddress, address _membershipRemovalAddress, 
+        address _membershipManagerAddress, address _votingParametersManagerAddress, address _packageManagerAddress) external{
+        if(isInitalized)
+            revert AlreadyInitalized();
         daoAddress = _daoAddress;
+        membershipRemovalAddress = _membershipRemovalAddress;
+        membershipManagerAddress = _membershipManagerAddress;
+        votingParametersManagerAddress = _votingParametersManagerAddress;
+        packageManagerAddress = _packageManagerAddress;
+        isInitalized = true;
     }
     modifier isFromDAO() {
-        if(daoAddress == msg.sender) revert Utils.AuthorizationError();
+        if(!isInitalized) revert NotInitalized();
+        if(daoAddress != msg.sender && membershipRemovalAddress != msg.sender 
+            && membershipManagerAddress != msg.sender 
+            && votingParametersManagerAddress != msg.sender &&
+            packageManagerAddress != msg.sender) revert Utils.AuthorizationError();
         _;
     }
     function getNextProposalId() public isFromDAO() returns(uint){
@@ -325,6 +413,12 @@ contract ProposalStorageManager{
     }
     function getChangeParametersProposalAddresses() public view returns(address[] memory){
         return changeParametersProposalAddresses;
+    }
+    function addPackageProposal(address key) isFromDAO() public{
+        packageProposalAddresses.push(key);
+    }
+    function getPackageProposalAddresses() public view returns(address[] memory){
+        return packageProposalAddresses;
     }
     function getMembershipProposalAddresses() public view returns(address[] memory){
         return membershipProposalAddresses;

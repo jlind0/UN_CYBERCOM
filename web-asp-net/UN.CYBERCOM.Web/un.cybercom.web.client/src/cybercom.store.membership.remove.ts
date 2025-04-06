@@ -6,6 +6,7 @@ import { ProposalsViewModel, ProposalViewModel } from './cybercom.store.proposal
 import { VoteViewModel } from './cybercom.store.voting';
 import { MembershipRemovalManager__factory } from './typechain';
 import { MembershipManagement } from './typechain/contracts/Membership.sol/MembershipRemovalManager';
+import { ZeroAddress } from 'ethers/constants';
 export class RemoveMemberStore {
     cyberComStore: ContractModel | undefined = undefined;
     deploying: boolean = false;
@@ -94,7 +95,8 @@ export class MembershipRemovalViewModel extends ProposalViewModel<MembershipMana
             documents: observable,
             addDocument: observable,
             id: observable,
-            vote: observable
+            vote: observable,
+            packageAddress: observable
         });
     }
     updateObj(obj: MembershipManagement.MembershipRemovalResponseStructOutput) {
@@ -107,6 +109,7 @@ export class MembershipRemovalViewModel extends ProposalViewModel<MembershipMana
                 vm.updateObj(v);
                 this.votes.push(vm);
             });
+            this.packageAddress = obj.packageAddress === ZeroAddress ? undefined : obj.packageAddress;
             this.duration = fromUnixTimestamp(obj.duration);
             this.status = Number(obj.status);
             this.isProcessing = obj.isProcessing;

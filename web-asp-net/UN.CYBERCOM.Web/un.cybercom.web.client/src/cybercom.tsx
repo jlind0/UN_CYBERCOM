@@ -7,6 +7,7 @@ import { VotingParametersView } from './cybercom.views.voting';
 import { NationsView, CouncilsView } from './cybercom.views.council';
 import { MembershipRemovalsView, AddRemoveMemberProposalView } from './cybercom.views.membership.removal';
 import { VotingParametersProposalsView, ChangeParameterProposalView } from './cybercom.views.voting_parameters';
+import { AddPackageProposalView, PackagesView } from './cybercom.views.package';
 const cybercomStore = new CybercomStore();
 
 const DisconnectedView = observer(({ store }: CybercomStoreParameter) => (
@@ -25,18 +26,20 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
         </CButton>
         {store.contract && (
             <div>
+                <AddPackageProposalView addStore={store.addPackage} />
                 <AddMemberProposalView addStore={store.addMembershipProposal} />
                 <AddRemoveMemberProposalView removeStore={store.removeMemberStore} />
                 <ChangeParameterProposalView changeVoting={store.changeVotingParametersStore} />
                 <CTabs activeItemKey="addresses">
                     <CTabList variant="tabs">
-                        <CTab itemKey="addresses">Addresses</CTab>
+                        <CTab itemKey="packages">Packages</CTab>
                         <CTab itemKey="councils">Councils</CTab>
                         <CTab itemKey="nations">Nations</CTab>
                         <CTab itemKey="voting_parameters">Voting Parameters</CTab>
                         <CTab itemKey="membershipProposals">Membership Proposals</CTab>
                         <CTab itemKey="membershipRemovals">Membership Removal Proposals</CTab>
                         <CTab itemKey="changeVotingParameters">Change Voting Parameters</CTab>
+                        <CTab itemKey="addresses">Addresses</CTab>
                     </CTabList>
                     <CTabContent>
                         <CTabPanel className="p-3" itemKey="addresses">
@@ -45,6 +48,7 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                             <p>Council Management: {store.contractAddresses.councilManagementAddress}</p>
                             <p>Membership Manager: {store.contractAddresses.membershipManagerAddress}</p>
                             <p>Membership Removal: {store.contractAddresses.membershipRemovalAddress}</p>
+                            <p>Package Manager: {store.contractAddresses.packageManagerAddress}</p>
                         </CTabPanel>
                         <CTabPanel className="p-3" itemKey="voting_parameters">
                             <VotingParametersView votingParameters={store.votingParameters} />
@@ -63,6 +67,9 @@ const ContractLoadedView = observer(({ store }: CybercomStoreParameter) => (
                         </CTabPanel>
                         <CTabPanel className="p-3" itemKey="changeVotingParameters">
                             <VotingParametersProposalsView store={store} />"
+                        </CTabPanel>
+                        <CTabPanel className="p-3" itemKey="packages">
+                            <PackagesView store={store} />"
                         </CTabPanel>
                     </CTabContent>
                 </CTabs>

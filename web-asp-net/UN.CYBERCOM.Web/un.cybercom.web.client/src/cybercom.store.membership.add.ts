@@ -35,7 +35,8 @@ export class AddMemberStore {
             await resp.wait();
             return true;
         }
-        catch {
+        catch (ex) {
+            console.log(ex);
             return false;
         }
         finally {

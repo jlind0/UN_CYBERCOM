@@ -58,6 +58,8 @@ export type { MembershipManager } from "./contracts/Membership.sol/MembershipMan
 export { MembershipManager__factory } from "./factories/contracts/Membership.sol/MembershipManager__factory";
 export type { MembershipRemovalManager } from "./contracts/Membership.sol/MembershipRemovalManager";
 export { MembershipRemovalManager__factory } from "./factories/contracts/Membership.sol/MembershipRemovalManager__factory";
+export type { PackageProposalManager } from "./contracts/Membership.sol/PackageProposalManager";
+export { PackageProposalManager__factory } from "./factories/contracts/Membership.sol/PackageProposalManager__factory";
 export type { VotingParametersManager } from "./contracts/Membership.sol/VotingParametersManager";
 export { VotingParametersManager__factory } from "./factories/contracts/Membership.sol/VotingParametersManager__factory";
 export type { ChangeVotingParametersProposal } from "./contracts/Proposal.sol/ChangeVotingParametersProposal";
@@ -68,6 +70,8 @@ export type { MembershipRemovalProposal } from "./contracts/Proposal.sol/Members
 export { MembershipRemovalProposal__factory } from "./factories/contracts/Proposal.sol/MembershipRemovalProposal__factory";
 export type { Proposal } from "./contracts/Proposal.sol/Proposal";
 export { Proposal__factory } from "./factories/contracts/Proposal.sol/Proposal__factory";
+export type { ProposalPackage } from "./contracts/Proposal.sol/ProposalPackage";
+export { ProposalPackage__factory } from "./factories/contracts/Proposal.sol/ProposalPackage__factory";
 export type { ProposalStorageManager } from "./contracts/Proposal.sol/ProposalStorageManager";
 export { ProposalStorageManager__factory } from "./factories/contracts/Proposal.sol/ProposalStorageManager__factory";
 export type { Utils } from "./contracts/Utils";

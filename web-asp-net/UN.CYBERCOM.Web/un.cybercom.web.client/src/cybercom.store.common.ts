@@ -5,6 +5,13 @@ export enum ApprovalStatus {
     Approved = 3,
     Rejected = 4
 }
+export enum ProposalType {
+    Membership = 0,
+    MinVoteDuration = 1,
+    UpdateVotingParameters = 2,
+    MembershipRemoval = 3,
+    Package = 4
+}
 export function fromUnixTimestamp(timestamp: bigint | number): Date {
     const seconds = typeof timestamp === "bigint" ? Number(timestamp) : timestamp;
     return new Date(seconds * 1000); // Multiply by 1000 to convert seconds to milliseconds

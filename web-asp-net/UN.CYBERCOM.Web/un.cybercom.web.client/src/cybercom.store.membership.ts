@@ -4,7 +4,9 @@ import { MembershipManagement } from './typechain/contracts/Membership.sol/Membe
 import { NationViewModel, CouncilsViewModel, CouncilGroupViewModel, CouncilViewModel } from './cybercom.store.council';
 import { ProposalViewModel, ProposalsViewModel } from './cybercom.store.proposals';
 import { ApprovalStatus, fromUnixTimestamp } from './cybercom.store.common';
-import { VoteViewModel } from './cybercom.store.voting'; 
+import { VoteViewModel } from './cybercom.store.voting';
+import { ZeroAddress } from 'ethers/constants';
+
 import {
     MembershipManager__factory
 } from './typechain';
@@ -64,7 +66,8 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             documents: observable,
             addDocument: observable,
             id: observable,
-            vote: observable
+            vote: observable,
+            packageAddress: observable
         });
     }
     updateObj(obj: MembershipManagement.MembershipProposalResponseStructOutput) {
@@ -75,6 +78,7 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             this.council = this.councils.getCouncil(obj.council)
             this.group = this.councils.getCouncilGroup(obj.groupId);
             this.votes.length = 0;
+            this.packageAddress = obj.packageAddress === ZeroAddress ? undefined : obj.packageAddress;
             obj.votes.forEach(v => {
                 const vm = new VoteViewModel(this.councils);
                 vm.updateObj(v);

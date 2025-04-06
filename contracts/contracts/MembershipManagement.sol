@@ -12,6 +12,7 @@ library MembershipManagement {
         address membershipRemovalAddress;
         address membershipManagerAddress;
         address votingParametersManagerAddress;
+        address packageManagerAddress;
     }
     struct MembershipProposalRequest {
         address member;
@@ -61,6 +62,11 @@ library MembershipManagement {
         bytes32 council;
         VotingParameters parameters;
     }
+    struct c{
+        uint id;
+        uint duration;
+        address owner;
+    }
     struct ChangeVotingParametersRequest{
         ChangeVotingParametersRole[] parameters;
         uint duration;
@@ -76,6 +82,7 @@ library MembershipManagement {
         bool votingStarted;
         address owner;
         address proposalAddress;
+        address packageAddress;
     }
     struct MembershipProposalResponse{
         uint id;
@@ -90,10 +97,27 @@ library MembershipManagement {
         bool votingStarted;
         address owner;
         address proposalAddress;
+        address packageAddress;
     }
     struct MembershipRemovalResponse{
         uint id;
         Nation nationToRemove;
+        Vote[] votes;
+        uint duration;
+        ApprovalStatus status;
+        bool isProcessing;
+        bool votingStarted;
+        address owner;
+        address proposalAddress;
+        address packageAddress;
+    }
+    struct ProposalPackageRequest{
+        uint duration;
+        address owner;
+    }
+    struct ProposalPackageResponse{
+        uint id;
+        uint[] proposals;
         Vote[] votes;
         uint duration;
         ApprovalStatus status;
@@ -125,7 +149,8 @@ library MembershipManagement {
         Membership,
         MinVoteDuration,
         UpdateVotingParameters,
-        MembershipRemoval
+        MembershipRemoval,
+        Package
     }
     enum ApprovalStatus {
         Entered,

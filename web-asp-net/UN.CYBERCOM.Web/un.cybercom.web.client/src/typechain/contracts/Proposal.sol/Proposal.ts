@@ -74,12 +74,14 @@ export interface ProposalInterface extends Interface {
     nameOrSignature:
       | "addDocument"
       | "duration"
+      | "enlistPackage"
       | "getDocuments"
       | "getThreshold"
       | "getVotes"
       | "id"
       | "isProcessing"
       | "owner"
+      | "packageAddress"
       | "proposalType"
       | "randomNumber"
       | "setProcessing"
@@ -106,6 +108,10 @@ export interface ProposalInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "duration", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "enlistPackage",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDocuments",
     values?: undefined
   ): string;
@@ -120,6 +126,10 @@ export interface ProposalInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "packageAddress",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proposalType",
     values?: undefined
@@ -161,6 +171,10 @@ export interface ProposalInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "duration", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "enlistPackage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getDocuments",
     data: BytesLike
   ): Result;
@@ -175,6 +189,10 @@ export interface ProposalInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packageAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposalType",
     data: BytesLike
@@ -320,6 +338,12 @@ export interface Proposal extends BaseContract {
 
   duration: TypedContractMethod<[], [bigint], "view">;
 
+  enlistPackage: TypedContractMethod<
+    [_packageAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getDocuments: TypedContractMethod<
     [],
     [MembershipManagement.DocStructOutput[]],
@@ -339,6 +363,8 @@ export interface Proposal extends BaseContract {
   isProcessing: TypedContractMethod<[], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
+
+  packageAddress: TypedContractMethod<[], [string], "view">;
 
   proposalType: TypedContractMethod<[], [bigint], "view">;
 
@@ -397,6 +423,9 @@ export interface Proposal extends BaseContract {
     nameOrSignature: "duration"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "enlistPackage"
+  ): TypedContractMethod<[_packageAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "getDocuments"
   ): TypedContractMethod<[], [MembershipManagement.DocStructOutput[]], "view">;
   getFunction(
@@ -411,6 +440,9 @@ export interface Proposal extends BaseContract {
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "packageAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "proposalType"

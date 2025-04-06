@@ -32,6 +32,7 @@ export declare namespace MembershipManagement {
     membershipRemovalAddress: AddressLike;
     membershipManagerAddress: AddressLike;
     votingParametersManagerAddress: AddressLike;
+    packageManagerAddress: AddressLike;
   };
 
   export type ContractAddressesStructOutput = [
@@ -41,7 +42,8 @@ export declare namespace MembershipManagement {
     proposalStorageAddress: string,
     membershipRemovalAddress: string,
     membershipManagerAddress: string,
-    votingParametersManagerAddress: string
+    votingParametersManagerAddress: string,
+    packageManagerAddress: string
   ] & {
     daoAddress: string;
     votingAddress: string;
@@ -50,6 +52,7 @@ export declare namespace MembershipManagement {
     membershipRemovalAddress: string;
     membershipManagerAddress: string;
     votingParametersManagerAddress: string;
+    packageManagerAddress: string;
   };
 
   export type VotingParametersStruct = {
@@ -155,6 +158,16 @@ export declare namespace MembershipManagement {
     duration: bigint,
     owner: string
   ] & { nationToRemove: string; duration: bigint; owner: string };
+
+  export type ProposalPackageRequestStruct = {
+    duration: BigNumberish;
+    owner: AddressLike;
+  };
+
+  export type ProposalPackageRequestStructOutput = [
+    duration: bigint,
+    owner: string
+  ] & { duration: bigint; owner: string };
 }
 
 export interface CybercomDAOInterface extends Interface {
@@ -165,6 +178,7 @@ export interface CybercomDAOInterface extends Interface {
       | "closeInitialization"
       | "completeVoting"
       | "contracts"
+      | "enlistPackage"
       | "getContractAddresses"
       | "getRoleAdmin"
       | "grantRole"
@@ -178,6 +192,7 @@ export interface CybercomDAOInterface extends Interface {
       | "submitChangeVotingParameters"
       | "submitMembershipProposal"
       | "submitMembershipRemovalProposal"
+      | "submitPackageProposal"
       | "supportsInterface"
   ): FunctionFragment;
 
@@ -213,6 +228,10 @@ export interface CybercomDAOInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "contracts", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "enlistPackage",
+    values: [AddressLike, AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "getContractAddresses",
     values?: undefined
@@ -266,6 +285,10 @@ export interface CybercomDAOInterface extends Interface {
     values: [MembershipManagement.MembershipRemovalRequestStruct]
   ): string;
   encodeFunctionData(
+    functionFragment: "submitPackageProposal",
+    values: [MembershipManagement.ProposalPackageRequestStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -287,6 +310,10 @@ export interface CybercomDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "contracts", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "enlistPackage",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getContractAddresses",
     data: BytesLike
@@ -325,6 +352,10 @@ export interface CybercomDAOInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "submitMembershipRemovalProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "submitPackageProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -557,7 +588,7 @@ export interface CybercomDAO extends BaseContract {
   contracts: TypedContractMethod<
     [],
     [
-      [string, string, string, string, string, string, string] & {
+      [string, string, string, string, string, string, string, string] & {
         daoAddress: string;
         votingAddress: string;
         councilManagementAddress: string;
@@ -565,9 +596,16 @@ export interface CybercomDAO extends BaseContract {
         membershipRemovalAddress: string;
         membershipManagerAddress: string;
         votingParametersManagerAddress: string;
+        packageManagerAddress: string;
       }
     ],
     "view"
+  >;
+
+  enlistPackage: TypedContractMethod<
+    [pack: AddressLike, proposal: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   getContractAddresses: TypedContractMethod<
@@ -644,6 +682,12 @@ export interface CybercomDAO extends BaseContract {
     "nonpayable"
   >;
 
+  submitPackageProposal: TypedContractMethod<
+    [request: MembershipManagement.ProposalPackageRequestStruct],
+    [string],
+    "nonpayable"
+  >;
+
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
     [boolean],
@@ -671,7 +715,7 @@ export interface CybercomDAO extends BaseContract {
   ): TypedContractMethod<
     [],
     [
-      [string, string, string, string, string, string, string] & {
+      [string, string, string, string, string, string, string, string] & {
         daoAddress: string;
         votingAddress: string;
         councilManagementAddress: string;
@@ -679,9 +723,17 @@ export interface CybercomDAO extends BaseContract {
         membershipRemovalAddress: string;
         membershipManagerAddress: string;
         votingParametersManagerAddress: string;
+        packageManagerAddress: string;
       }
     ],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "enlistPackage"
+  ): TypedContractMethod<
+    [pack: AddressLike, proposal: AddressLike],
+    [void],
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "getContractAddresses"
@@ -759,6 +811,13 @@ export interface CybercomDAO extends BaseContract {
     nameOrSignature: "submitMembershipRemovalProposal"
   ): TypedContractMethod<
     [request: MembershipManagement.MembershipRemovalRequestStruct],
+    [string],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "submitPackageProposal"
+  ): TypedContractMethod<
+    [request: MembershipManagement.ProposalPackageRequestStruct],
     [string],
     "nonpayable"
   >;

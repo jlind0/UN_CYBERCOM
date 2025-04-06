@@ -3,4 +3,5 @@
 /* eslint-disable */
 export type { MembershipManager } from "./MembershipManager";
 export type { MembershipRemovalManager } from "./MembershipRemovalManager";
+export type { PackageProposalManager } from "./PackageProposalManager";
 export type { VotingParametersManager } from "./VotingParametersManager";

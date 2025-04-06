@@ -32,6 +32,7 @@ export declare namespace MembershipManagement {
     membershipRemovalAddress: AddressLike;
     membershipManagerAddress: AddressLike;
     votingParametersManagerAddress: AddressLike;
+    packageManagerAddress: AddressLike;
   };
 
   export type ContractAddressesStructOutput = [
@@ -41,7 +42,8 @@ export declare namespace MembershipManagement {
     proposalStorageAddress: string,
     membershipRemovalAddress: string,
     membershipManagerAddress: string,
-    votingParametersManagerAddress: string
+    votingParametersManagerAddress: string,
+    packageManagerAddress: string
   ] & {
     daoAddress: string;
     votingAddress: string;
@@ -50,6 +52,7 @@ export declare namespace MembershipManagement {
     membershipRemovalAddress: string;
     membershipManagerAddress: string;
     votingParametersManagerAddress: string;
+    packageManagerAddress: string;
   };
 
   export type NationStruct = { id: AddressLike; name: string };
@@ -113,6 +116,7 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: AddressLike;
     proposalAddress: AddressLike;
+    packageAddress: AddressLike;
   };
 
   export type MembershipRemovalResponseStructOutput = [
@@ -124,7 +128,8 @@ export declare namespace MembershipManagement {
     isProcessing: boolean,
     votingStarted: boolean,
     owner: string,
-    proposalAddress: string
+    proposalAddress: string,
+    packageAddress: string
   ] & {
     id: bigint;
     nationToRemove: MembershipManagement.NationStructOutput;
@@ -135,6 +140,7 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: string;
     proposalAddress: string;
+    packageAddress: string;
   };
 }
 
@@ -143,6 +149,7 @@ export interface MembershipRemovalProposalInterface extends Interface {
     nameOrSignature:
       | "addDocument"
       | "duration"
+      | "enlistPackage"
       | "getDocuments"
       | "getMembershipResponse"
       | "getNation"
@@ -151,6 +158,7 @@ export interface MembershipRemovalProposalInterface extends Interface {
       | "id"
       | "isProcessing"
       | "owner"
+      | "packageAddress"
       | "proposalType"
       | "randomNumber"
       | "setProcessing"
@@ -177,6 +185,10 @@ export interface MembershipRemovalProposalInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "duration", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "enlistPackage",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDocuments",
     values?: undefined
   ): string;
@@ -196,6 +208,10 @@ export interface MembershipRemovalProposalInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "packageAddress",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proposalType",
     values?: undefined
@@ -237,6 +253,10 @@ export interface MembershipRemovalProposalInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "duration", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "enlistPackage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getDocuments",
     data: BytesLike
   ): Result;
@@ -256,6 +276,10 @@ export interface MembershipRemovalProposalInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packageAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposalType",
     data: BytesLike
@@ -401,6 +425,12 @@ export interface MembershipRemovalProposal extends BaseContract {
 
   duration: TypedContractMethod<[], [bigint], "view">;
 
+  enlistPackage: TypedContractMethod<
+    [_packageAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getDocuments: TypedContractMethod<
     [],
     [MembershipManagement.DocStructOutput[]],
@@ -432,6 +462,8 @@ export interface MembershipRemovalProposal extends BaseContract {
   isProcessing: TypedContractMethod<[], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
+
+  packageAddress: TypedContractMethod<[], [string], "view">;
 
   proposalType: TypedContractMethod<[], [bigint], "view">;
 
@@ -490,6 +522,9 @@ export interface MembershipRemovalProposal extends BaseContract {
     nameOrSignature: "duration"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "enlistPackage"
+  ): TypedContractMethod<[_packageAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "getDocuments"
   ): TypedContractMethod<[], [MembershipManagement.DocStructOutput[]], "view">;
   getFunction(
@@ -514,6 +549,9 @@ export interface MembershipRemovalProposal extends BaseContract {
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "packageAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "proposalType"

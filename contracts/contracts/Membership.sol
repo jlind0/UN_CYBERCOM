@@ -84,7 +84,71 @@ contract VotingParametersManager{
         emit Utils.ProposalCreated(prop.id(), propAddress);
         return propAddress;
     }
-               
+         
+}
+contract PackageProposalManager{
+    address votingAddress;
+    address proposalStorageAddress;
+    address daoAddress;
+     modifier isFromDAO(){
+        if(msg.sender != votingAddress && msg.sender != daoAddress)
+            revert Utils.AuthorizationError();
+        _;
+    }
+    constructor(address _votingAddress, address _proposalStorageAddress, address _daoAddress){
+        votingAddress = _votingAddress;
+        proposalStorageAddress = _proposalStorageAddress;
+        daoAddress = _daoAddress;
+    }
+    function getRequests(MembershipManagement.ApprovalStatus status) 
+        external view returns(MembershipManagement.ProposalPackageResponse[] memory)
+    {
+        ProposalStorageManager memberManager = ProposalStorageManager(proposalStorageAddress);
+        address[] memory propAddresses = memberManager.getPackageProposalAddresses();
+        ProposalPackage[] memory props = new ProposalPackage[](propAddresses.length);
+            uint i = 0;
+            uint j = 0;
+            while(i < propAddresses.length){
+                ProposalPackage mp = ProposalPackage(propAddresses[i]);
+                if(mp.status() == status)
+                {
+                    props[j] = mp;
+                    j++;
+                }
+                i++;
+            }
+            MembershipManagement.ProposalPackageResponse[] memory rtn = new MembershipManagement.ProposalPackageResponse[](j);
+            i = 0;
+            while(i < j){
+                rtn[i] = getResponse(props[i]);
+                i++;
+            }
+            return rtn;
+    }
+    function getResponse(ProposalPackage prop)
+        private view returns(MembershipManagement.ProposalPackageResponse memory)
+    {
+        return prop.getPackage();
+    }
+    function submitProposal(MembershipManagement.ProposalPackageRequest memory request) public isFromDAO() returns(address){
+        return constructPackageProposal(request);
+    }
+    function constructPackageProposal(MembershipManagement.ProposalPackageRequest memory request) private returns(address){
+        ProposalStorageManager memberManager = ProposalStorageManager(proposalStorageAddress);
+        CybercomDAO dao = CybercomDAO(daoAddress);
+        ProposalPackage prop = new ProposalPackage(
+            request.owner, 
+            dao.getContractAddresses(), 
+            memberManager.getNextProposalId(), request.duration);
+        Voting v = Voting(votingAddress);
+        address propAddress = address(prop);
+        v.addProposal(propAddress);
+        
+        memberManager.setProposal(prop.id(), propAddress);
+        memberManager.addPackageProposal(propAddress);
+        emit Utils.ProposalCreated(prop.id(), propAddress);
+        return propAddress;
+    }    
 }
 contract MembershipRemovalManager{
     address votingAddress;

@@ -8,6 +8,7 @@ export class ContractAddressesViewModel {
     membershipRemovalAddress: string | undefined = undefined;
     membershipManagerAddress: string | undefined = undefined;
     votingParametersManagerAddress: string | undefined = undefined;
+    packageManagerAddress: string | undefined = undefined;
     constructor() {
         makeAutoObservable(this);
     }
@@ -20,6 +21,7 @@ export class ContractAddressesViewModel {
             this.membershipManagerAddress = obj.membershipManagerAddress;
             this.membershipRemovalAddress = obj.membershipRemovalAddress;
             this.votingParametersManagerAddress = obj.votingParametersManagerAddress;
+            this.packageManagerAddress = obj.packageManagerAddress;
         });
     }
 }

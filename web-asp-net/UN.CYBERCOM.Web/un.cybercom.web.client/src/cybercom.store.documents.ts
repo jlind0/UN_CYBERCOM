@@ -44,7 +44,7 @@ export class AddDocumentViewModel {
                 const contract = Proposal__factory.connect(this.proposalAddress, this.contractModel.signer);
                 const resp = await contract.addDocument(this.contractModel.signer.address, this.title, this.url,
                     this.documentHash,
-                    this.signature, { gasLimit: 5000000 });
+                    this.signature);
                 await resp.wait();
             }
         }

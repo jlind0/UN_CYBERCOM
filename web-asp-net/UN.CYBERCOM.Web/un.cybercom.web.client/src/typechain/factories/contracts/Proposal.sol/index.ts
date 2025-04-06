@@ -5,4 +5,5 @@ export { ChangeVotingParametersProposal__factory } from "./ChangeVotingParameter
 export { MembershipProposal__factory } from "./MembershipProposal__factory";
 export { MembershipRemovalProposal__factory } from "./MembershipRemovalProposal__factory";
 export { Proposal__factory } from "./Proposal__factory";
+export { ProposalPackage__factory } from "./ProposalPackage__factory";
 export { ProposalStorageManager__factory } from "./ProposalStorageManager__factory";

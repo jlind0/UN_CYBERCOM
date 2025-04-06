@@ -3,4 +3,5 @@
 /* eslint-disable */
 export { MembershipManager__factory } from "./MembershipManager__factory";
 export { MembershipRemovalManager__factory } from "./MembershipRemovalManager__factory";
+export { PackageProposalManager__factory } from "./PackageProposalManager__factory";
 export { VotingParametersManager__factory } from "./VotingParametersManager__factory";

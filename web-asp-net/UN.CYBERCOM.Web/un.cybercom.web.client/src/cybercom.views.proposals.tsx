@@ -3,6 +3,7 @@ import { AddDocumentView } from './cybercom.views.documents';
 import { ApprovalStatus } from './cybercom.store.common';
 import { ProposalItemParameter } from './cybercom.views.common';
 import { CButton,CFormCheck, CTableDataCell} from '@coreui/react'
+import { ZeroAddress } from 'ethers';
 const ProposalDataCells = observer(({ item }: ProposalItemParameter) => (
     <>
     <CTableDataCell>
@@ -51,7 +52,7 @@ const ProposalDataCells = observer(({ item }: ProposalItemParameter) => (
 
                         </>
                     )}
-                    {item.status == ApprovalStatus.Ready && (
+                    {item.status == ApprovalStatus.Ready && (item.packageAddress === undefined || item.packageAddress === ZeroAddress) &&(
                         <>
                             <CButton
                                 color="primary"

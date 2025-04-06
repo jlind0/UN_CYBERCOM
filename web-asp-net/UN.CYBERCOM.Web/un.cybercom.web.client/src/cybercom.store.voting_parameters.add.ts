@@ -62,7 +62,8 @@ export class ChangeVotingParametersStore {
             await resp.wait();
             return true;
         }
-        catch {
+        catch (ex) {
+            console.log(ex);
             return false;
         }
         finally {

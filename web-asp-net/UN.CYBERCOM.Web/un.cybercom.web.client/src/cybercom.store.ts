@@ -15,8 +15,11 @@ import {
     Voting__factory,
     MembershipRemovalManager__factory,
     MembershipManager__factory,
-    VotingParametersManager__factory
+    VotingParametersManager__factory,
+    PackageProposalManager__factory
 } from './typechain';
+import { AddPackageStore } from './cybercom.store.package.add';
+import { PackagesViewModel } from './cybercom.store.package';
 
 const subscriptionId : string = import.meta.env.VITE_CHAINLINK_VRF_SUBSCRIPTION_ID;
 
@@ -40,7 +43,8 @@ export class CybercomStore implements ContractModel {
     removeMemberships: MembershipRemovalsViewModel;
     changeVotingParameters: VotingParametersProposalsViewModel;
     changeVotingParametersStore: ChangeVotingParametersStore;
-
+    addPackage: AddPackageStore;
+    packages: PackagesViewModel;
     constructor() {
         this.addMembershipProposal = new AddMemberStore(this, this.councils);
         this.membershipProposals = new MembershipProposalsViewModel(this, this.councils);
@@ -48,19 +52,21 @@ export class CybercomStore implements ContractModel {
         this.removeMemberships = new MembershipRemovalsViewModel(this, this.councils);
         this.changeVotingParametersStore = new ChangeVotingParametersStore(this, this.councils, this.votingParameters);
         this.changeVotingParameters = new VotingParametersProposalsViewModel(this, this.councils);
+        this.addPackage = new AddPackageStore(this);
+        this.packages = new PackagesViewModel(this, this.councils);
         makeAutoObservable(this);
     }
 
     async deployContract(subscription_id: ethers.BigNumberish): Promise<string | undefined> {
         if (!this.provider || !this.signer) return;
-        this.activity = 'Deploying main contract';
+        runInAction(() => this.activity = 'Deploying main contract');
         const factory = new CybercomDAO__factory(this.signer);
         const contract = await factory.deploy(subscription_id);
         await contract.waitForDeployment();
         const code = await contract.getDeployedCode();
         if (!code) return;
 
-        this.activity = 'Deploying Council Manager Contract';
+        runInAction(() => this.activity = 'Deploying Council Manager Contract');
         const address = await contract.getAddress();
         const councilManagerFactory = new CouncilManager__factory(this.signer);
         const ct = await councilManagerFactory.deploy(address);
@@ -68,23 +74,25 @@ export class CybercomStore implements ContractModel {
         const ctCode = await ct.getDeployedCode();
         if (!ctCode) return;
 
-        this.activity = 'Deploying Proposal Storage Contract';
+        runInAction(() => this.activity = 'Deploying Proposal Storage Contract');
         const ctAddress = await ct.getAddress();
         const propStorContact = new ProposalStorageManager__factory(this.signer);
-        const pCt = await propStorContact.deploy(address);
-        await pCt.waitForDeployment();
+        const pCt = await propStorContact.deploy();
+        const contractCt = await pCt.waitForDeployment();
+        
         const pCtCode = await pCt.getDeployedCode();
         if (!pCtCode) return;
 
-        this.activity = 'Deploying Voting Contract';
+        runInAction(() => this.activity = 'Deploying Voting Contract');
         const pCtAddress = await pCt.getAddress();
+        
         const vsContract = new Voting__factory(this.signer);
         const vs = await vsContract.deploy(subscriptionId, address, ctAddress);
         await vs.waitForDeployment();
         const vsCode = await vs.getDeployedCode();
         if (!vsCode) return;
 
-        this.activity = 'Deploying Membership Removal Contract';
+        runInAction(() => this.activity = 'Deploying Membership Removal Contract');
         const vsAddress = await vs.getAddress();
         const memRemovalFactory = new MembershipRemovalManager__factory(this.signer);
         const memRemoval = await memRemovalFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
@@ -92,7 +100,7 @@ export class CybercomStore implements ContractModel {
         const memRemovalCode = await memRemoval.getDeployedCode();
         if (!memRemovalCode) return;
 
-        this.activity = 'Deploying Membership Management Contract';
+        runInAction(() => this.activity = 'Deploying Membership Management Contract');
         const memRemovalAddress = await memRemoval.getAddress();
         const memManContractFactory = new MembershipManager__factory(this.signer);
         const memMan = await memManContractFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
@@ -102,14 +110,24 @@ export class CybercomStore implements ContractModel {
 
         this.activity = 'Deploying Voting Parameter Contract';
         const memManAddress = await memMan.getAddress();
+        const packFactory = new PackageProposalManager__factory(this.signer);
+        const packParm = await packFactory.deploy(vsAddress, pCtAddress, address);
+        await packParm.waitForDeployment();
+        const packCode = await packParm.getDeployedCode();
+        if (!packCode) return;
+        const packAddress = await packParm.getAddress();
+        runInAction(() => this.activity = 'Deploying Package Manager Contract');
         const votParmFactory = new VotingParametersManager__factory(this.signer);
         const votParm = await votParmFactory.deploy(vsAddress, ctAddress, pCtAddress, address);
         await votParm.waitForDeployment();
         const votParmCode = await votParm.getDeployedCode();
         if (!votParmCode) return;
-
-        this.activity = 'Initializing Cybercom Contract';
         const votParAddress = await votParm.getAddress();
+        runInAction(() => this.activity = 'Initializing Proposal Storage Manager Contract');
+        const r = await contractCt.initalize(address, memRemovalAddress, memManAddress, votParAddress, packAddress);
+        await r.wait();
+        runInAction(() => this.activity = 'Initializing Cybercom Contract');
+        
         const initResp = await contract.initialize({
             daoAddress: address,
             votingAddress: vsAddress,
@@ -118,10 +136,11 @@ export class CybercomStore implements ContractModel {
             membershipManagerAddress: memManAddress,
             membershipRemovalAddress: memRemovalAddress,
             councilManagementAddress: ctAddress,
+            packageManagerAddress: packAddress,
         });
         await initResp.wait();
         const closeResp = await contract.closeInitialization();
-        this.activity = 'Finalizing Cybercom Contract';
+        runInAction(() => this.activity = 'Finalizing Cybercom Contract');
         await closeResp.wait();
         console.log('Contract deployed at:', address);
         return address;

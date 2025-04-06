@@ -24,13 +24,6 @@ import type {
 } from "../../common";
 
 export declare namespace MembershipManagement {
-  export type NationStruct = { id: AddressLike; name: string };
-
-  export type NationStructOutput = [id: string, name: string] & {
-    id: string;
-    name: string;
-  };
-
   export type VoteStruct = {
     member: AddressLike;
     voteCasted: boolean;
@@ -50,12 +43,9 @@ export declare namespace MembershipManagement {
     proposalId: bigint;
   };
 
-  export type MembershipProposalResponseStruct = {
+  export type ProposalPackageResponseStruct = {
     id: BigNumberish;
-    member: AddressLike;
-    newNation: MembershipManagement.NationStruct;
-    council: BytesLike;
-    groupId: BigNumberish;
+    proposals: BigNumberish[];
     votes: MembershipManagement.VoteStruct[];
     duration: BigNumberish;
     status: BigNumberish;
@@ -63,29 +53,21 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: AddressLike;
     proposalAddress: AddressLike;
-    packageAddress: AddressLike;
   };
 
-  export type MembershipProposalResponseStructOutput = [
+  export type ProposalPackageResponseStructOutput = [
     id: bigint,
-    member: string,
-    newNation: MembershipManagement.NationStructOutput,
-    council: string,
-    groupId: bigint,
+    proposals: bigint[],
     votes: MembershipManagement.VoteStructOutput[],
     duration: bigint,
     status: bigint,
     isProcessing: boolean,
     votingStarted: boolean,
     owner: string,
-    proposalAddress: string,
-    packageAddress: string
+    proposalAddress: string
   ] & {
     id: bigint;
-    member: string;
-    newNation: MembershipManagement.NationStructOutput;
-    council: string;
-    groupId: bigint;
+    proposals: bigint[];
     votes: MembershipManagement.VoteStructOutput[];
     duration: bigint;
     status: bigint;
@@ -93,54 +75,41 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: string;
     proposalAddress: string;
-    packageAddress: string;
   };
 
-  export type MembershipProposalRequestStruct = {
-    member: AddressLike;
-    newNation: MembershipManagement.NationStruct;
-    groupId: BigNumberish;
+  export type ProposalPackageRequestStruct = {
     duration: BigNumberish;
     owner: AddressLike;
   };
 
-  export type MembershipProposalRequestStructOutput = [
-    member: string,
-    newNation: MembershipManagement.NationStructOutput,
-    groupId: bigint,
+  export type ProposalPackageRequestStructOutput = [
     duration: bigint,
     owner: string
-  ] & {
-    member: string;
-    newNation: MembershipManagement.NationStructOutput;
-    groupId: bigint;
-    duration: bigint;
-    owner: string;
-  };
+  ] & { duration: bigint; owner: string };
 }
 
-export interface MembershipManagerInterface extends Interface {
+export interface PackageProposalManagerInterface extends Interface {
   getFunction(
-    nameOrSignature: "getMembershipRequests" | "submitMembershipProposal"
+    nameOrSignature: "getRequests" | "submitProposal"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "ProposalCreated"): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "getMembershipRequests",
+    functionFragment: "getRequests",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "submitMembershipProposal",
-    values: [MembershipManagement.MembershipProposalRequestStruct]
+    functionFragment: "submitProposal",
+    values: [MembershipManagement.ProposalPackageRequestStruct]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "getMembershipRequests",
+    functionFragment: "getRequests",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "submitMembershipProposal",
+    functionFragment: "submitProposal",
     data: BytesLike
   ): Result;
 }
@@ -161,11 +130,11 @@ export namespace ProposalCreatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface MembershipManager extends BaseContract {
-  connect(runner?: ContractRunner | null): MembershipManager;
+export interface PackageProposalManager extends BaseContract {
+  connect(runner?: ContractRunner | null): PackageProposalManager;
   waitForDeployment(): Promise<this>;
 
-  interface: MembershipManagerInterface;
+  interface: PackageProposalManagerInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -204,14 +173,14 @@ export interface MembershipManager extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  getMembershipRequests: TypedContractMethod<
+  getRequests: TypedContractMethod<
     [status: BigNumberish],
-    [MembershipManagement.MembershipProposalResponseStructOutput[]],
+    [MembershipManagement.ProposalPackageResponseStructOutput[]],
     "view"
   >;
 
-  submitMembershipProposal: TypedContractMethod<
-    [request: MembershipManagement.MembershipProposalRequestStruct],
+  submitProposal: TypedContractMethod<
+    [request: MembershipManagement.ProposalPackageRequestStruct],
     [string],
     "nonpayable"
   >;
@@ -221,16 +190,16 @@ export interface MembershipManager extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "getMembershipRequests"
+    nameOrSignature: "getRequests"
   ): TypedContractMethod<
     [status: BigNumberish],
-    [MembershipManagement.MembershipProposalResponseStructOutput[]],
+    [MembershipManagement.ProposalPackageResponseStructOutput[]],
     "view"
   >;
   getFunction(
-    nameOrSignature: "submitMembershipProposal"
+    nameOrSignature: "submitProposal"
   ): TypedContractMethod<
-    [request: MembershipManagement.MembershipProposalRequestStruct],
+    [request: MembershipManagement.ProposalPackageRequestStruct],
     [string],
     "nonpayable"
   >;

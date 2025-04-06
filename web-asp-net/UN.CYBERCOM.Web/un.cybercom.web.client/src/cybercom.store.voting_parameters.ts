@@ -7,6 +7,7 @@ import { ApprovalStatus, fromUnixTimestamp } from './cybercom.store.common';
 import { VotingParametersManager__factory } from './typechain';
 import { AddDocumentViewModel } from './cybercom.store.documents';
 import { VoteViewModel } from './cybercom.store.voting';
+import { ZeroAddress } from 'ethers/constants';
 export class VotingParametersViewModels {
     votingParameters: VotingParametersViewModel[] = [];
     constructor() {
@@ -84,7 +85,8 @@ export class VotingParametersProposalViewModel extends ProposalViewModel<CMM.Cha
             addDocument: observable,
             id: observable,
             votes: observable,
-            vote: observable
+            vote: observable,
+            packageAddress: observable,
         });
     }
     updateObj(obj: CMM.ChangeVotingParametersResponseStructOutput): void {
@@ -104,6 +106,7 @@ export class VotingParametersProposalViewModel extends ProposalViewModel<CMM.Cha
             this.votingParameters.updateObj(votingParms);
             this.id = obj.id;
             this.duration = fromUnixTimestamp(obj.duration);
+            this.packageAddress = obj.packageAddress === ZeroAddress ? undefined : obj.packageAddress;
             this.status = Number(obj.status);
             this.isProcessing = obj.isProcessing;
             this.votingStarted = obj.votingStarted;

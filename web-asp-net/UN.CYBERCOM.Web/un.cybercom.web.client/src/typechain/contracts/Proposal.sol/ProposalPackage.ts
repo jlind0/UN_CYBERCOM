@@ -55,109 +55,6 @@ export declare namespace MembershipManagement {
     packageManagerAddress: string;
   };
 
-  export type VotingParametersStruct = {
-    randomizeByGroup: boolean;
-    randomizeByMember: boolean;
-    outputCountForGroup: BigNumberish;
-    outputCountForMember: BigNumberish;
-    voteDenominator: BigNumberish;
-    voteNumerator: BigNumberish;
-    sumDenominator: BigNumberish;
-    sumNumerator: BigNumberish;
-    avgVotes: boolean;
-  };
-
-  export type VotingParametersStructOutput = [
-    randomizeByGroup: boolean,
-    randomizeByMember: boolean,
-    outputCountForGroup: bigint,
-    outputCountForMember: bigint,
-    voteDenominator: bigint,
-    voteNumerator: bigint,
-    sumDenominator: bigint,
-    sumNumerator: bigint,
-    avgVotes: boolean
-  ] & {
-    randomizeByGroup: boolean;
-    randomizeByMember: boolean;
-    outputCountForGroup: bigint;
-    outputCountForMember: bigint;
-    voteDenominator: bigint;
-    voteNumerator: bigint;
-    sumDenominator: bigint;
-    sumNumerator: bigint;
-    avgVotes: boolean;
-  };
-
-  export type ChangeVotingParametersRoleStruct = {
-    council: BytesLike;
-    parameters: MembershipManagement.VotingParametersStruct;
-  };
-
-  export type ChangeVotingParametersRoleStructOutput = [
-    council: string,
-    parameters: MembershipManagement.VotingParametersStructOutput
-  ] & {
-    council: string;
-    parameters: MembershipManagement.VotingParametersStructOutput;
-  };
-
-  export type VoteStruct = {
-    member: AddressLike;
-    voteCasted: boolean;
-    timestamp: BigNumberish;
-    proposalId: BigNumberish;
-  };
-
-  export type VoteStructOutput = [
-    member: string,
-    voteCasted: boolean,
-    timestamp: bigint,
-    proposalId: bigint
-  ] & {
-    member: string;
-    voteCasted: boolean;
-    timestamp: bigint;
-    proposalId: bigint;
-  };
-
-  export type ChangeVotingParametersResponseStruct = {
-    id: BigNumberish;
-    parameters: MembershipManagement.ChangeVotingParametersRoleStruct[];
-    votes: MembershipManagement.VoteStruct[];
-    duration: BigNumberish;
-    status: BigNumberish;
-    isProcessing: boolean;
-    votingStarted: boolean;
-    owner: AddressLike;
-    proposalAddress: AddressLike;
-    packageAddress: AddressLike;
-  };
-
-  export type ChangeVotingParametersResponseStructOutput = [
-    id: bigint,
-    parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[],
-    votes: MembershipManagement.VoteStructOutput[],
-    duration: bigint,
-    status: bigint,
-    isProcessing: boolean,
-    votingStarted: boolean,
-    owner: string,
-    proposalAddress: string,
-    packageAddress: string
-  ] & {
-    id: bigint;
-    parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[];
-    votes: MembershipManagement.VoteStructOutput[];
-    duration: bigint;
-    status: bigint;
-    isProcessing: boolean;
-    votingStarted: boolean;
-    owner: string;
-    proposalAddress: string;
-    packageAddress: string;
-  };
-
   export type DocStruct = {
     title: string;
     url: string;
@@ -182,16 +79,70 @@ export declare namespace MembershipManagement {
     signer: string;
     docAddress: string;
   };
+
+  export type VoteStruct = {
+    member: AddressLike;
+    voteCasted: boolean;
+    timestamp: BigNumberish;
+    proposalId: BigNumberish;
+  };
+
+  export type VoteStructOutput = [
+    member: string,
+    voteCasted: boolean,
+    timestamp: bigint,
+    proposalId: bigint
+  ] & {
+    member: string;
+    voteCasted: boolean;
+    timestamp: bigint;
+    proposalId: bigint;
+  };
+
+  export type ProposalPackageResponseStruct = {
+    id: BigNumberish;
+    proposals: BigNumberish[];
+    votes: MembershipManagement.VoteStruct[];
+    duration: BigNumberish;
+    status: BigNumberish;
+    isProcessing: boolean;
+    votingStarted: boolean;
+    owner: AddressLike;
+    proposalAddress: AddressLike;
+  };
+
+  export type ProposalPackageResponseStructOutput = [
+    id: bigint,
+    proposals: bigint[],
+    votes: MembershipManagement.VoteStructOutput[],
+    duration: bigint,
+    status: bigint,
+    isProcessing: boolean,
+    votingStarted: boolean,
+    owner: string,
+    proposalAddress: string
+  ] & {
+    id: bigint;
+    proposals: bigint[];
+    votes: MembershipManagement.VoteStructOutput[];
+    duration: bigint;
+    status: bigint;
+    isProcessing: boolean;
+    votingStarted: boolean;
+    owner: string;
+    proposalAddress: string;
+  };
 }
 
-export interface ChangeVotingParametersProposalInterface extends Interface {
+export interface ProposalPackageInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addDocument"
       | "duration"
       | "enlistPackage"
-      | "getChangeResponse"
+      | "enlistProposal"
       | "getDocuments"
+      | "getPackage"
       | "getThreshold"
       | "getVotes"
       | "id"
@@ -228,11 +179,15 @@ export interface ChangeVotingParametersProposalInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getChangeResponse",
-    values?: undefined
+    functionFragment: "enlistProposal",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getDocuments",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPackage",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -295,13 +250,14 @@ export interface ChangeVotingParametersProposalInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getChangeResponse",
+    functionFragment: "enlistProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getDocuments",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getPackage", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getThreshold",
     data: BytesLike
@@ -405,11 +361,11 @@ export namespace VotingStartedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface ChangeVotingParametersProposal extends BaseContract {
-  connect(runner?: ContractRunner | null): ChangeVotingParametersProposal;
+export interface ProposalPackage extends BaseContract {
+  connect(runner?: ContractRunner | null): ProposalPackage;
   waitForDeployment(): Promise<this>;
 
-  interface: ChangeVotingParametersProposalInterface;
+  interface: ProposalPackageInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -468,15 +424,21 @@ export interface ChangeVotingParametersProposal extends BaseContract {
     "nonpayable"
   >;
 
-  getChangeResponse: TypedContractMethod<
-    [],
-    [MembershipManagement.ChangeVotingParametersResponseStructOutput],
-    "view"
+  enlistProposal: TypedContractMethod<
+    [proposal: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   getDocuments: TypedContractMethod<
     [],
     [MembershipManagement.DocStructOutput[]],
+    "view"
+  >;
+
+  getPackage: TypedContractMethod<
+    [],
+    [MembershipManagement.ProposalPackageResponseStructOutput],
     "view"
   >;
 
@@ -556,15 +518,18 @@ export interface ChangeVotingParametersProposal extends BaseContract {
     nameOrSignature: "enlistPackage"
   ): TypedContractMethod<[_packageAddress: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "getChangeResponse"
-  ): TypedContractMethod<
-    [],
-    [MembershipManagement.ChangeVotingParametersResponseStructOutput],
-    "view"
-  >;
+    nameOrSignature: "enlistProposal"
+  ): TypedContractMethod<[proposal: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "getDocuments"
   ): TypedContractMethod<[], [MembershipManagement.DocStructOutput[]], "view">;
+  getFunction(
+    nameOrSignature: "getPackage"
+  ): TypedContractMethod<
+    [],
+    [MembershipManagement.ProposalPackageResponseStructOutput],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "getThreshold"
   ): TypedContractMethod<[], [bigint], "view">;

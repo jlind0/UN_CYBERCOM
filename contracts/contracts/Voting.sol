@@ -31,7 +31,7 @@ contract Voting is VRFConsumerBaseV2Plus {
         MembershipManagement.ContractAddresses memory addresses = dao.getContractAddresses();
 
         if(msg.sender != daoAddress && 
-            msg.sender != addresses.membershipManagerAddress && 
+            msg.sender != addresses.membershipManagerAddress && msg.sender != addresses.packageManagerAddress &&
             msg.sender != addresses.membershipRemovalAddress && msg.sender != addresses.votingParametersManagerAddress ) revert Unauthorized();
         _;
     }

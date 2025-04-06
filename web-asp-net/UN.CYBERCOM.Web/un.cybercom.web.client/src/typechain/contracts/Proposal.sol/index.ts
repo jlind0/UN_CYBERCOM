@@ -5,4 +5,5 @@ export type { ChangeVotingParametersProposal } from "./ChangeVotingParametersPro
 export type { MembershipProposal } from "./MembershipProposal";
 export type { MembershipRemovalProposal } from "./MembershipRemovalProposal";
 export type { Proposal } from "./Proposal";
+export type { ProposalPackage } from "./ProposalPackage";
 export type { ProposalStorageManager } from "./ProposalStorageManager";

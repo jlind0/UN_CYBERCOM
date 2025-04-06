@@ -70,7 +70,20 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
             }
         return manager.submitMembershipProposal(request);
     }
-    
+    function enlistPackage(address pack, address proposal) external isMember(){
+        Proposal p = Proposal(proposal);
+        ProposalPackage package = ProposalPackage(pack);
+        package.enlistProposal(proposal);
+        p.enlistPackage(pack);
+    }
+    function submitPackageProposal(MembershipManagement.ProposalPackageRequest memory request) external returns(address){
+        PackageProposalManager manager = PackageProposalManager(contracts.packageManagerAddress);
+        request.owner = msg.sender;
+         if(request.duration < MIN_VOTE_DURATION){
+                request.duration = MIN_VOTE_DURATION;
+            }
+        return manager.submitProposal(request);
+    }
     function submitMembershipRemovalProposal(MembershipManagement.MembershipRemovalRequest memory request)
         isMember() external returns(address)
     {
@@ -121,7 +134,52 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
         MembershipManagement.ApprovalStatus status = vtg.tallyVotes(proposalId);
         if(status == MembershipManagement.ApprovalStatus.Approved){
             proposal.updateStatus(MembershipManagement.ApprovalStatus.Approved);
-            if(proposal.proposalType() == MembershipManagement.ProposalTypes.Membership){
+            if(proposal.proposalType() == MembershipManagement.ProposalTypes.Package){
+                ProposalPackage pp = ProposalPackage(address(proposal));
+                MembershipManagement.ProposalPackageResponse memory ppr = pp.getPackage();
+                uint x = 0;
+                while(x < ppr.proposals.length){
+                    address ppId = memberManager.getProposal(ppr.proposals[x]);
+                    Proposal underlying = Proposal(ppId);
+                    underlying.updateStatus(MembershipManagement.ApprovalStatus.Approved);
+                    applyAccept(underlying);
+                    x++;
+                }
+            }
+            else
+                applyAccept(proposal);
+        }
+        else if(status == MembershipManagement.ApprovalStatus.Rejected){
+            proposal.updateStatus(MembershipManagement.ApprovalStatus.Rejected);
+            if(proposal.proposalType() == MembershipManagement.ProposalTypes.Package){
+                ProposalPackage pp = ProposalPackage(address(proposal));
+                MembershipManagement.ProposalPackageResponse memory ppr = pp.getPackage();
+                uint x = 0;
+                while(x < ppr.proposals.length){
+                    address ppId = memberManager.getProposal(ppr.proposals[x]);
+                    Proposal underlying = Proposal(ppId);
+                    underlying.updateStatus(MembershipManagement.ApprovalStatus.Rejected);
+                    applyReject(underlying);
+                    x++;
+                }
+            }
+            
+        }
+        emit Utils.VotingCompleted(proposalId, status);
+    }
+    function applyReject(Proposal proposal) private{
+        if(proposal.proposalType() == MembershipManagement.ProposalTypes.Membership){
+            MembershipProposal mp = MembershipProposal(address(proposal));
+            emit Utils.MemberRejected(mp.getNation().id);
+        }
+        else if(proposal.proposalType() == MembershipManagement.ProposalTypes.MembershipRemoval){
+            MembershipRemovalProposal mrp = MembershipRemovalProposal(address(proposal));
+            emit Utils.MemberKept(mrp.getNation().id);
+        }
+    }
+    function applyAccept(Proposal proposal) private{
+        address propId = address(proposal);
+        if(proposal.proposalType() == MembershipManagement.ProposalTypes.Membership){
                 acceptMember(propId);
             }
             else if(proposal.proposalType() == MembershipManagement.ProposalTypes.MembershipRemoval){
@@ -131,19 +189,6 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
                 CouncilManager councilManager = CouncilManager(contracts.councilManagementAddress);
                 councilManager.updateVotingParameters(propId);
             }
-        }
-        else if(status == MembershipManagement.ApprovalStatus.Rejected){
-            proposal.updateStatus(MembershipManagement.ApprovalStatus.Rejected);
-            if(proposal.proposalType() == MembershipManagement.ProposalTypes.Membership){
-                MembershipProposal mp = MembershipProposal(address(proposal));
-                emit Utils.MemberRejected(mp.getNation().id);
-            }
-            else if(proposal.proposalType() == MembershipManagement.ProposalTypes.MembershipRemoval){
-                MembershipRemovalProposal mrp = MembershipRemovalProposal(address(proposal));
-                emit Utils.MemberKept(mrp.getNation().id);
-            }
-        }
-        emit Utils.VotingCompleted(proposalId, status);
     }
     function acceptMemberExt(address proposalAddress) isFromMembership() public{
         acceptMember(proposalAddress);

@@ -11,12 +11,32 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "AlreadyInPackage",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "AuthorizationError",
     type: "error",
   },
   {
     inputs: [],
+    name: "CanOnlyVotePackage",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ClosedForDocumentAdd",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "VotingAlreadytStarted",
     type: "error",
   },
   {
@@ -146,6 +166,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_packageAddress",
+        type: "address",
+      },
+    ],
+    name: "enlistPackage",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getDocuments",
     outputs: [
@@ -200,7 +233,7 @@ const _abi = [
         type: "uint16",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -267,6 +300,19 @@ const _abi = [
   {
     inputs: [],
     name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "packageAddress",
     outputs: [
       {
         internalType: "address",

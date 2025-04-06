@@ -114,6 +114,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MembershipRemovalManager__factory>;
     getContractFactory(
+      name: "PackageProposalManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.PackageProposalManager__factory>;
+    getContractFactory(
       name: "VotingParametersManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VotingParametersManager__factory>;
@@ -133,6 +137,10 @@ declare module "hardhat/types/runtime" {
       name: "Proposal",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Proposal__factory>;
+    getContractFactory(
+      name: "ProposalPackage",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ProposalPackage__factory>;
     getContractFactory(
       name: "ProposalStorageManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -272,6 +280,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.MembershipRemovalManager>;
     getContractAt(
+      name: "PackageProposalManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PackageProposalManager>;
+    getContractAt(
       name: "VotingParametersManager",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -296,6 +309,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.Proposal>;
+    getContractAt(
+      name: "ProposalPackage",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ProposalPackage>;
     getContractAt(
       name: "ProposalStorageManager",
       address: string | ethers.Addressable,
@@ -413,6 +431,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MembershipRemovalManager>;
     deployContract(
+      name: "PackageProposalManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.PackageProposalManager>;
+    deployContract(
       name: "VotingParametersManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.VotingParametersManager>;
@@ -432,6 +454,10 @@ declare module "hardhat/types/runtime" {
       name: "Proposal",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Proposal>;
+    deployContract(
+      name: "ProposalPackage",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProposalPackage>;
     deployContract(
       name: "ProposalStorageManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -571,6 +597,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MembershipRemovalManager>;
     deployContract(
+      name: "PackageProposalManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.PackageProposalManager>;
+    deployContract(
       name: "VotingParametersManager",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -595,6 +626,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Proposal>;
+    deployContract(
+      name: "ProposalPackage",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProposalPackage>;
     deployContract(
       name: "ProposalStorageManager",
       args: any[],
