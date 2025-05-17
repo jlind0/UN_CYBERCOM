@@ -113,7 +113,7 @@ export class AddPackageStore {
             const resp = await this.cyberComStore.contract.submitPackageProposal({
                 owner: this.cyberComStore.signer.address,
                 duration: BigInt(0),
-
+                maxOpenDuration: BigInt(0),
             });
             await resp.wait();
             return true;

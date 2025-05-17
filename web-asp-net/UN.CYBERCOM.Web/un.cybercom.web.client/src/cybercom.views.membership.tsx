@@ -11,6 +11,8 @@ const MembershipProposalsView = observer(({ store }: CybercomStoreParameter) => 
         <CTabs activeItemKey="entered">
             <CTabList variant="tabs">
                 <CTab itemKey="entered">Entered</CTab>
+                <CTab itemKey="motioned">Motioning</CTab>
+                <CTab itemKey="motionFailed">Motion Failed</CTab>
                 <CTab itemKey="pending">Pending</CTab>
                 <CTab itemKey="ready">Ready</CTab>
                 <CTab itemKey="accepted">Accepted</CTab>
@@ -19,6 +21,12 @@ const MembershipProposalsView = observer(({ store }: CybercomStoreParameter) => 
             <CTabContent>
                 <CTabPanel className="p-3" itemKey="entered">
                     <MembershipProposalTableView proposals={store.membershipProposals.enteredProposals}/>
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motioned">
+                    <MembershipProposalTableView proposals={store.membershipProposals.motioningProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motionFailed">
+                    <MembershipProposalTableView proposals={store.membershipProposals.motionFailedProposals} />
                 </CTabPanel>
                 <CTabPanel className="p-3" itemKey="pending">
                     <MembershipProposalTableView proposals={store.membershipProposals.pendingProposals} />
@@ -51,7 +59,7 @@ const MembershipProposalTableView = observer(({ proposals }: MembershipProposalT
                     <CTableHeaderCell scope="col">New Nation Name</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Documents</CTableHeaderCell>
                     {proposals.length > 0 && proposals[0].status != ApprovalStatus.Entered && (
-                        <CTableHeaderCell scope="col">Votes</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Votes &amp; Motions</CTableHeaderCell>
                     )}
                 </CTableRow>
             </CTableHead>

@@ -137,10 +137,13 @@ export interface VotingInterface extends Interface {
     nameOrSignature:
       | "acceptOwnership"
       | "addProposal"
+      | "doesMotionCarry"
       | "getVoteTally"
+      | "motionProposal"
       | "owner"
       | "prepareTally"
       | "rawFulfillRandomWords"
+      | "requiresMotion"
       | "s_vrfCoordinator"
       | "setCoordinator"
       | "tallyVotes"
@@ -163,8 +166,16 @@ export interface VotingInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "doesMotionCarry",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getVoteTally",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "motionProposal",
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -174,6 +185,10 @@ export interface VotingInterface extends Interface {
   encodeFunctionData(
     functionFragment: "rawFulfillRandomWords",
     values: [BigNumberish, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requiresMotion",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "s_vrfCoordinator",
@@ -201,7 +216,15 @@ export interface VotingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "doesMotionCarry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getVoteTally",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "motionProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -211,6 +234,10 @@ export interface VotingInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "rawFulfillRandomWords",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requiresMotion",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -317,10 +344,22 @@ export interface Voting extends BaseContract {
     "nonpayable"
   >;
 
+  doesMotionCarry: TypedContractMethod<
+    [proposalAddress: AddressLike],
+    [boolean],
+    "nonpayable"
+  >;
+
   getVoteTally: TypedContractMethod<
     [proposalId: BigNumberish],
     [MembershipManagement.TallyResultStructOutput],
     "view"
+  >;
+
+  motionProposal: TypedContractMethod<
+    [proposalAddress: AddressLike, member: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   owner: TypedContractMethod<[], [string], "view">;
@@ -335,6 +374,12 @@ export interface Voting extends BaseContract {
     [requestId: BigNumberish, randomWords: BigNumberish[]],
     [void],
     "nonpayable"
+  >;
+
+  requiresMotion: TypedContractMethod<
+    [proposalAddress: AddressLike],
+    [boolean],
+    "view"
   >;
 
   s_vrfCoordinator: TypedContractMethod<[], [string], "view">;
@@ -368,11 +413,25 @@ export interface Voting extends BaseContract {
     nameOrSignature: "addProposal"
   ): TypedContractMethod<[proposalAddress: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "doesMotionCarry"
+  ): TypedContractMethod<
+    [proposalAddress: AddressLike],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "getVoteTally"
   ): TypedContractMethod<
     [proposalId: BigNumberish],
     [MembershipManagement.TallyResultStructOutput],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "motionProposal"
+  ): TypedContractMethod<
+    [proposalAddress: AddressLike, member: AddressLike],
+    [void],
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "owner"
@@ -387,6 +446,9 @@ export interface Voting extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "requiresMotion"
+  ): TypedContractMethod<[proposalAddress: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "s_vrfCoordinator"
   ): TypedContractMethod<[], [string], "view">;

@@ -106,16 +106,19 @@ export declare namespace MembershipManagement {
     parameters: MembershipManagement.ChangeVotingParametersRoleStruct[];
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type ChangeVotingParametersRequestStructOutput = [
     parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[],
     duration: bigint,
-    owner: string
+    owner: string,
+    maxOpenDuration: bigint
   ] & {
     parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[];
     duration: bigint;
     owner: string;
+    maxOpenDuration: bigint;
   };
 
   export type NationStruct = { id: AddressLike; name: string };
@@ -131,6 +134,7 @@ export declare namespace MembershipManagement {
     groupId: BigNumberish;
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type MembershipProposalRequestStructOutput = [
@@ -138,36 +142,47 @@ export declare namespace MembershipManagement {
     newNation: MembershipManagement.NationStructOutput,
     groupId: bigint,
     duration: bigint,
-    owner: string
+    owner: string,
+    maxOpenDuration: bigint
   ] & {
     member: string;
     newNation: MembershipManagement.NationStructOutput;
     groupId: bigint;
     duration: bigint;
     owner: string;
+    maxOpenDuration: bigint;
   };
 
   export type MembershipRemovalRequestStruct = {
     nationToRemove: AddressLike;
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type MembershipRemovalRequestStructOutput = [
     nationToRemove: string,
     duration: bigint,
-    owner: string
-  ] & { nationToRemove: string; duration: bigint; owner: string };
+    owner: string,
+    maxOpenDuration: bigint
+  ] & {
+    nationToRemove: string;
+    duration: bigint;
+    owner: string;
+    maxOpenDuration: bigint;
+  };
 
   export type ProposalPackageRequestStruct = {
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type ProposalPackageRequestStructOutput = [
     duration: bigint,
-    owner: string
-  ] & { duration: bigint; owner: string };
+    owner: string,
+    maxOpenDuration: bigint
+  ] & { duration: bigint; owner: string; maxOpenDuration: bigint };
 }
 
 export interface CybercomDAOInterface extends Interface {
@@ -175,6 +190,7 @@ export interface CybercomDAOInterface extends Interface {
     nameOrSignature:
       | "DEFAULT_ADMIN_ROLE"
       | "acceptMemberExt"
+      | "checkMotionCarry"
       | "closeInitialization"
       | "completeVoting"
       | "contracts"
@@ -184,6 +200,8 @@ export interface CybercomDAOInterface extends Interface {
       | "grantRole"
       | "hasRole"
       | "initialize"
+      | "motionProposal"
+      | "performSecond"
       | "performVote"
       | "prepareTally"
       | "renounceRole"
@@ -220,6 +238,10 @@ export interface CybercomDAOInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "checkMotionCarry",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "closeInitialization",
     values?: undefined
   ): string;
@@ -251,6 +273,14 @@ export interface CybercomDAOInterface extends Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [MembershipManagement.ContractAddressesStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "motionProposal",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "performSecond",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "performVote",
@@ -302,6 +332,10 @@ export interface CybercomDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "checkMotionCarry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "closeInitialization",
     data: BytesLike
   ): Result;
@@ -325,6 +359,14 @@ export interface CybercomDAOInterface extends Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "motionProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "performSecond",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "performVote",
     data: BytesLike
@@ -577,6 +619,12 @@ export interface CybercomDAO extends BaseContract {
     "nonpayable"
   >;
 
+  checkMotionCarry: TypedContractMethod<
+    [proposalId: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
   closeInitialization: TypedContractMethod<[], [void], "nonpayable">;
 
   completeVoting: TypedContractMethod<
@@ -630,6 +678,18 @@ export interface CybercomDAO extends BaseContract {
 
   initialize: TypedContractMethod<
     [_contracts: MembershipManagement.ContractAddressesStruct],
+    [void],
+    "nonpayable"
+  >;
+
+  motionProposal: TypedContractMethod<
+    [proposalId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  performSecond: TypedContractMethod<
+    [proposalId: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -705,6 +765,9 @@ export interface CybercomDAO extends BaseContract {
     nameOrSignature: "acceptMemberExt"
   ): TypedContractMethod<[proposalAddress: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "checkMotionCarry"
+  ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "nonpayable">;
+  getFunction(
     nameOrSignature: "closeInitialization"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -766,6 +829,12 @@ export interface CybercomDAO extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "motionProposal"
+  ): TypedContractMethod<[proposalId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "performSecond"
+  ): TypedContractMethod<[proposalId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "performVote"
   ): TypedContractMethod<

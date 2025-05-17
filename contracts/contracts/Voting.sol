@@ -8,6 +8,7 @@ import "./Utils.sol";
 import "./MembershipManagement.sol";
 import "./Proposal.sol";
 import "./CybercomDAO.sol";
+
 contract Voting is VRFConsumerBaseV2Plus {
     uint256 s_subscriptionId;
     address constant vrfCoordinator = 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B;
@@ -88,7 +89,111 @@ contract Voting is VRFConsumerBaseV2Plus {
         proposalIds.push(proposalId);
         proposals[proposalId] = proposalAddress;
     }
-    
+    error MotionClosed();
+    error OwnerCannotSecond();
+    error UnableToSecond();
+    function applyMotion(Proposal prop, address member) private{
+        MembershipManagement.ApprovalStatus status = prop.status();
+        if(status == MembershipManagement.ApprovalStatus.Entered)
+            return;
+        else if(status == MembershipManagement.ApprovalStatus.Motioning)
+        {
+            CouncilManager manager = CouncilManager(councilManagerAddress);
+            address owner = prop.owner();
+            if(owner == member)
+                revert OwnerCannotSecond();
+            MembershipManagement.Council memory ownerCouncil = manager.getCouncilForNation(owner);
+            MembershipManagement.CouncilGroup memory sg = manager.getCouncilGroupForNation(member);
+            MembershipManagement.CouncilGroup memory og = manager.getCouncilGroupForNation(owner);
+            MembershipManagement.Council memory memberCouncil = manager.getCouncilForNation(member);
+            if(ownerCouncil.motionRules.onlyWithinOwnGroup)
+            {
+                if(sg.id != og.id)
+                    revert UnableToSecond();
+            }
+            if(ownerCouncil.motionRules.disabled)
+                revert UnableToSecond();
+            bool canSecond = true;
+            if(ownerCouncil.motionRules.councilsThatCanMotion.length > 0){
+                canSecond = false;
+                uint y = 0;
+                while(y < ownerCouncil.motionRules.councilsThatCanMotion.length){
+                    if(memberCouncil.role == ownerCouncil.motionRules.councilsThatCanMotion[y])
+                    {
+                        canSecond = true;
+                        break;
+                    }
+                    y++;
+                }
+            }
+            if(!canSecond)
+                revert UnableToSecond();
+            prop.motion(member);
+        }
+        else
+            revert MotionClosed();
+    }
+    function requiresMotion(address proposalAddress) public view returns(bool){
+        Proposal prop = Proposal(proposalAddress);
+        if(address(prop) == address(0))
+            revert InvalidProposal();
+        if(prop.status() != MembershipManagement.ApprovalStatus.Entered)
+            return false;
+        if(prop.packageAddress() != address(0))
+            return false;
+        CouncilManager manager = CouncilManager(councilManagerAddress);
+        address owner = prop.owner();
+        MembershipManagement.Council memory ownerCouncil = manager.getCouncilForNation(owner);
+        if(ownerCouncil.motionRules.requiresMajority || ownerCouncil.motionRules.numberOfSeconds > 0)
+            return true;
+        return false;
+    }
+    function doesMotionCarry(address proposalAddress) public returns(bool){
+        CouncilManager manager = CouncilManager(councilManagerAddress);
+        Proposal prop = Proposal(proposalAddress);
+        if(prop.status() != MembershipManagement.ApprovalStatus.Motioning)
+            revert MotionClosed();
+        address owner = prop.owner();
+        MembershipManagement.Council memory ownerCouncil = manager.getCouncilForNation(owner);
+        if(ownerCouncil.motionRules.disabled){
+            prop.updateStatus(MembershipManagement.ApprovalStatus.MotionFailure);
+            return false;
+        }
+        uint requiredSeconds = ownerCouncil.motionRules.numberOfSeconds;
+        if(ownerCouncil.motionRules.requiresMajority){
+            uint total = manager.totalNations();
+            if(ownerCouncil.motionRules.onlyWithinOwnGroup){
+                MembershipManagement.CouncilGroup memory sg = manager.getCouncilGroupForNation(owner);
+                total = sg.members.length;
+            }
+            requiredSeconds = (total * 51 + 100 - 1) / 100;
+        }
+        uint motionSeconds = prop.getMotions().length;
+        if(motionSeconds >= requiredSeconds){
+            prop.startVoting(owner);
+            return true;
+        }
+        else if(block.timestamp > prop.motionClosesTimestamp())
+            prop.updateStatus(MembershipManagement.ApprovalStatus.MotionFailure);
+        return false;
+    }
+    function motionProposal(address proposalAddress, address member) isFromDAO() public{
+        Proposal proposal = Proposal(proposalAddress);
+        CouncilManager manager = CouncilManager(councilManagerAddress);
+        MembershipManagement.Council memory council = manager.getCouncilForNation(member);
+        if(proposal.owner() == member){
+            if(council.motionRules.numberOfSeconds == 0 && !council.motionRules.requiresMajority && !council.motionRules.disabled)
+                proposal.startVoting(member);
+            else
+                proposal.startMotioning();
+        }
+        else
+        {
+            applyMotion(proposal, member);
+            doesMotionCarry(proposalAddress);
+        }
+
+    }
     function getVoteTally(uint proposalId) public view returns(MembershipManagement.TallyResult memory){
         if(proposalTallyResults[proposalId].proposalId == proposalId)
             return proposalTallyResults[proposalId];

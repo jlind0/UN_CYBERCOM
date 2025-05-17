@@ -7,6 +7,7 @@ import { VoteViewModel } from './cybercom.store.voting';
 import { MembershipRemovalManager__factory } from './typechain';
 import { MembershipManagement } from './typechain/contracts/Membership.sol/MembershipRemovalManager';
 import { ZeroAddress } from 'ethers/constants';
+import { MotionViewModel } from './cybercom.store.motions';
 export class RemoveMemberStore {
     cyberComStore: ContractModel | undefined = undefined;
     deploying: boolean = false;
@@ -30,7 +31,8 @@ export class RemoveMemberStore {
             const resp = await this.cyberComStore.contract.submitMembershipRemovalProposal({
                 owner: this.cyberComStore.signer.address,
                 nationToRemove: this.selectedNationAddress,
-                duration: BigInt(0)
+                duration: BigInt(0),
+                maxOpenDuration: BigInt(0),
             });
             await resp.wait();
             return true;
@@ -60,7 +62,9 @@ export class MembershipRemovalsViewModel extends ProposalsViewModel<MembershipMa
             readyProposals: observable,
             acceptedProposals: observable,
             rejectedProposals: observable,
-            isLoading: observable
+            isLoading: observable,
+            motionFailedProposals: observable,
+            motioningProposals: observable,
         });
     }
     async loadProposals(status: ApprovalStatus): Promise<MembershipRemovalViewModel[]> {
@@ -96,7 +100,9 @@ export class MembershipRemovalViewModel extends ProposalViewModel<MembershipMana
             addDocument: observable,
             id: observable,
             vote: observable,
-            packageAddress: observable
+            packageAddress: observable,
+            motions: observable,
+            motionClosesTimestamp: observable,
         });
     }
     updateObj(obj: MembershipManagement.MembershipRemovalResponseStructOutput) {
@@ -104,6 +110,12 @@ export class MembershipRemovalViewModel extends ProposalViewModel<MembershipMana
             this.id = obj.id;
             this.nationToRemove = this.councils.getNation(obj.nationToRemove.id);
             this.votes.length = 0;
+            this.motions.length = 0;
+            obj.motions.forEach(m => {
+                const vm = new MotionViewModel(this.councils);
+                vm.updateObj(m);
+                this.motions.push(vm);
+            });
             obj.votes.forEach(v => {
                 const vm = new VoteViewModel(this.councils);
                 vm.updateObj(v);
@@ -117,6 +129,7 @@ export class MembershipRemovalViewModel extends ProposalViewModel<MembershipMana
             this.owner = obj.owner;
             this.proposalAddress = obj.proposalAddress;
             this.addDocument = new AddDocumentViewModel(this.contractModel, obj.proposalAddress);
+            this.motionClosesTimestamp = fromUnixTimestamp(obj.motionCloseTimestamp);
         });
     }
     

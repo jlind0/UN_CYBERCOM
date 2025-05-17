@@ -43,6 +43,18 @@ export declare namespace MembershipManagement {
     proposalId: bigint;
   };
 
+  export type MotionStruct = {
+    member: AddressLike;
+    timestamp: BigNumberish;
+    proposalId: BigNumberish;
+  };
+
+  export type MotionStructOutput = [
+    member: string,
+    timestamp: bigint,
+    proposalId: bigint
+  ] & { member: string; timestamp: bigint; proposalId: bigint };
+
   export type ProposalPackageResponseStruct = {
     id: BigNumberish;
     proposals: BigNumberish[];
@@ -53,6 +65,9 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: AddressLike;
     proposalAddress: AddressLike;
+    timestamp: BigNumberish;
+    motionCloseTimestamp: BigNumberish;
+    motions: MembershipManagement.MotionStruct[];
   };
 
   export type ProposalPackageResponseStructOutput = [
@@ -64,7 +79,10 @@ export declare namespace MembershipManagement {
     isProcessing: boolean,
     votingStarted: boolean,
     owner: string,
-    proposalAddress: string
+    proposalAddress: string,
+    timestamp: bigint,
+    motionCloseTimestamp: bigint,
+    motions: MembershipManagement.MotionStructOutput[]
   ] & {
     id: bigint;
     proposals: bigint[];
@@ -75,17 +93,22 @@ export declare namespace MembershipManagement {
     votingStarted: boolean;
     owner: string;
     proposalAddress: string;
+    timestamp: bigint;
+    motionCloseTimestamp: bigint;
+    motions: MembershipManagement.MotionStructOutput[];
   };
 
   export type ProposalPackageRequestStruct = {
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type ProposalPackageRequestStructOutput = [
     duration: bigint,
-    owner: string
-  ] & { duration: bigint; owner: string };
+    owner: string,
+    maxOpenDuration: bigint
+  ] & { duration: bigint; owner: string; maxOpenDuration: bigint };
 }
 
 export interface PackageProposalManagerInterface extends Interface {

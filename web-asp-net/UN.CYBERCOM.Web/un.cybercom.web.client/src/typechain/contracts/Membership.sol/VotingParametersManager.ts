@@ -90,6 +90,18 @@ export declare namespace MembershipManagement {
     proposalId: bigint;
   };
 
+  export type MotionStruct = {
+    member: AddressLike;
+    timestamp: BigNumberish;
+    proposalId: BigNumberish;
+  };
+
+  export type MotionStructOutput = [
+    member: string,
+    timestamp: bigint,
+    proposalId: bigint
+  ] & { member: string; timestamp: bigint; proposalId: bigint };
+
   export type ChangeVotingParametersResponseStruct = {
     id: BigNumberish;
     parameters: MembershipManagement.ChangeVotingParametersRoleStruct[];
@@ -101,6 +113,9 @@ export declare namespace MembershipManagement {
     owner: AddressLike;
     proposalAddress: AddressLike;
     packageAddress: AddressLike;
+    timestamp: BigNumberish;
+    motionCloseTimestamp: BigNumberish;
+    motions: MembershipManagement.MotionStruct[];
   };
 
   export type ChangeVotingParametersResponseStructOutput = [
@@ -113,7 +128,10 @@ export declare namespace MembershipManagement {
     votingStarted: boolean,
     owner: string,
     proposalAddress: string,
-    packageAddress: string
+    packageAddress: string,
+    timestamp: bigint,
+    motionCloseTimestamp: bigint,
+    motions: MembershipManagement.MotionStructOutput[]
   ] & {
     id: bigint;
     parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[];
@@ -125,22 +143,28 @@ export declare namespace MembershipManagement {
     owner: string;
     proposalAddress: string;
     packageAddress: string;
+    timestamp: bigint;
+    motionCloseTimestamp: bigint;
+    motions: MembershipManagement.MotionStructOutput[];
   };
 
   export type ChangeVotingParametersRequestStruct = {
     parameters: MembershipManagement.ChangeVotingParametersRoleStruct[];
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type ChangeVotingParametersRequestStructOutput = [
     parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[],
     duration: bigint,
-    owner: string
+    owner: string,
+    maxOpenDuration: bigint
   ] & {
     parameters: MembershipManagement.ChangeVotingParametersRoleStructOutput[];
     duration: bigint;
     owner: string;
+    maxOpenDuration: bigint;
   };
 }
 

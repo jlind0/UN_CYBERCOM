@@ -9,7 +9,8 @@ import "./Voting.sol";
 import "./CouncilManager.sol";
 import "./Membership.sol";
 contract CybercomDAO is ReentrancyGuard, AccessControl{
-    uint MIN_VOTE_DURATION = 1 minutes;
+    uint MIN_VOTE_DURATION = 5 minutes;
+    uint MAX_PROPOSAL_OPEN_DURATION = 25 minutes;
     MembershipManagement.ContractAddresses public contracts;
     uint256 subscriptionId;
     bool isInitialized = false;
@@ -49,6 +50,7 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
         subscriptionId = _subscriptionId;
         
     }
+    error ProposalRequiresMotion();
     function startVoting(uint proposalId) external{
         ProposalStorageManager storageManager = ProposalStorageManager(contracts.proposalStorageAddress);
         address propId = storageManager.getProposal(proposalId);
@@ -57,48 +59,86 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
         Proposal prop = Proposal(propId);
         if(prop.owner() != msg.sender)
             revert Utils.NotOwner();
+        Voting v = Voting(contracts.votingAddress);
+        if(v.requiresMotion(propId))
+            revert ProposalRequiresMotion();
         prop.startVoting(msg.sender);
         emit Utils.VoteStarted(proposalId, msg.sender);
     }
+    function motionProposal(uint proposalId) external isMember(){
+        Voting v = Voting(contracts.votingAddress);
+        ProposalStorageManager storageManager = ProposalStorageManager(contracts.proposalStorageAddress);
+        address propId = storageManager.getProposal(proposalId);
+        if(propId == address(0))
+            revert Utils.InvalidProposal();
+        v.motionProposal(propId, msg.sender);
+    }
+    function checkMotionCarry(uint proposalId) external returns(bool){
+        Voting v = Voting(contracts.votingAddress);
+        ProposalStorageManager storageManager = ProposalStorageManager(contracts.proposalStorageAddress);
+        address propId = storageManager.getProposal(proposalId);
+        if(propId == address(0))
+            revert Utils.InvalidProposal();
+        return v.doesMotionCarry(propId);
+
+    }
+    error InvalidProposalOwner();
+    modifier canCreateProposal() {
+        CouncilManager councilManager = CouncilManager(contracts.councilManagementAddress);
+        if(councilManager.getNationCount() > 0)
+        {
+            MembershipManagement.Council memory council = councilManager.getCouncilForNation(msg.sender);
+            if(council.motionRules.disabled)
+                revert InvalidProposalOwner();
+        }
+        _;
+    }
     function submitMembershipProposal(MembershipManagement.MembershipProposalRequest memory request)
-        external returns(address)
+        external canCreateProposal() returns(address)
     {
         MembershipManager manager = MembershipManager(contracts.membershipManagerAddress);
         request.owner = msg.sender;
          if(request.duration < MIN_VOTE_DURATION){
                 request.duration = MIN_VOTE_DURATION;
             }
+        request.maxOpenDuration = MAX_PROPOSAL_OPEN_DURATION;
         return manager.submitMembershipProposal(request);
     }
+    error OwnerDifference();
     function enlistPackage(address pack, address proposal) external isMember(){
         Proposal p = Proposal(proposal);
         ProposalPackage package = ProposalPackage(pack);
+        if(p.owner() != package.owner())
+            revert OwnerDifference();
         package.enlistProposal(proposal);
         p.enlistPackage(pack);
     }
-    function submitPackageProposal(MembershipManagement.ProposalPackageRequest memory request) external returns(address){
+    function submitPackageProposal(MembershipManagement.ProposalPackageRequest memory request) external isMember() canCreateProposal() returns(address){
         PackageProposalManager manager = PackageProposalManager(contracts.packageManagerAddress);
         request.owner = msg.sender;
          if(request.duration < MIN_VOTE_DURATION){
                 request.duration = MIN_VOTE_DURATION;
             }
+        request.maxOpenDuration = MAX_PROPOSAL_OPEN_DURATION;
         return manager.submitProposal(request);
     }
     function submitMembershipRemovalProposal(MembershipManagement.MembershipRemovalRequest memory request)
-        isMember() external returns(address)
+        isMember() canCreateProposal() external returns(address)
     {
         if(request.duration < MIN_VOTE_DURATION){
                 request.duration = MIN_VOTE_DURATION;
             }
+        request.maxOpenDuration = MAX_PROPOSAL_OPEN_DURATION;
         request.owner = msg.sender;
         MembershipRemovalManager manager = MembershipRemovalManager(contracts.membershipRemovalAddress);
         return manager.submitProposal(request);
     }
     function submitChangeVotingParameters(MembershipManagement.ChangeVotingParametersRequest memory request)
-        isMember() external returns(address){
+        isMember() canCreateProposal() external returns(address){
         if(request.duration < MIN_VOTE_DURATION){
             request.duration = MIN_VOTE_DURATION;
         }
+        request.maxOpenDuration = MAX_PROPOSAL_OPEN_DURATION;
         request.owner = msg.sender;
         VotingParametersManager manager = VotingParametersManager(contracts.votingParametersManagerAddress);
         return manager.submitProposal(request);
@@ -111,6 +151,9 @@ contract CybercomDAO is ReentrancyGuard, AccessControl{
         Proposal prop = Proposal(propId);
         prop.vote(voteCast, msg.sender);
         emit Utils.VoteCast(proposalId, msg.sender, voteCast);
+    }
+    function performSecond(uint proposalId) isMember() external{
+        
     }
     function prepareTally(uint proposalId)
         external isMember(){

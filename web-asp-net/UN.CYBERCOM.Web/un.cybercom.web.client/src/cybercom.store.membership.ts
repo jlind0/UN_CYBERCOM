@@ -10,6 +10,7 @@ import { ZeroAddress } from 'ethers/constants';
 import {
     MembershipManager__factory
 } from './typechain';
+import { MotionViewModel } from './cybercom.store.motions';
 
 
 
@@ -25,7 +26,9 @@ export class MembershipProposalsViewModel extends ProposalsViewModel<MembershipM
             readyProposals: observable,
             acceptedProposals: observable,
             rejectedProposals: observable,
-            isLoading: observable
+            isLoading: observable,
+            motionFailedProposals: observable,
+            motioningProposals: observable,
         });
     }
     async loadProposals(status: ApprovalStatus): Promise<MembershipProposalViewModel[]> {
@@ -67,7 +70,9 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             addDocument: observable,
             id: observable,
             vote: observable,
-            packageAddress: observable
+            packageAddress: observable,
+            motions: observable,
+            motionClosesTimestamp: observable,
         });
     }
     updateObj(obj: MembershipManagement.MembershipProposalResponseStructOutput) {
@@ -79,6 +84,12 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             this.group = this.councils.getCouncilGroup(obj.groupId);
             this.votes.length = 0;
             this.packageAddress = obj.packageAddress === ZeroAddress ? undefined : obj.packageAddress;
+            this.motions.length = 0;
+            obj.motions.forEach(m => {
+                const vm = new MotionViewModel(this.councils);
+                vm.updateObj(m);
+                this.motions.push(vm);
+            });
             obj.votes.forEach(v => {
                 const vm = new VoteViewModel(this.councils);
                 vm.updateObj(v);
@@ -91,6 +102,7 @@ export class MembershipProposalViewModel extends ProposalViewModel<MembershipMan
             this.owner = obj.owner;
             this.proposalAddress = obj.proposalAddress;
             this.addDocument = new AddDocumentViewModel(this.contractModel, obj.proposalAddress);
+            this.motionClosesTimestamp = fromUnixTimestamp(obj.motionCloseTimestamp);
         });
     }
 }

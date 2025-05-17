@@ -1,9 +1,11 @@
 export enum ApprovalStatus {
     Entered = 0,
-    Pending = 1,
-    Ready = 2,
-    Approved = 3,
-    Rejected = 4
+    Motioning = 1,
+    MotionFailure = 2,
+    Pending = 3,
+    Ready = 4,
+    Approved = 5,
+    Rejected = 6
 }
 export enum ProposalType {
     Membership = 0,
@@ -12,7 +14,10 @@ export enum ProposalType {
     MembershipRemoval = 3,
     Package = 4
 }
-export function fromUnixTimestamp(timestamp: bigint | number): Date {
+export function fromUnixTimestamp(timestamp: bigint | number | undefined): Date | undefined {
+    if (timestamp === undefined) {
+        return undefined;
+    }
     const seconds = typeof timestamp === "bigint" ? Number(timestamp) : timestamp;
     return new Date(seconds * 1000); // Multiply by 1000 to convert seconds to milliseconds
 }

@@ -57,7 +57,8 @@ export class ChangeVotingParametersStore {
             const resp = await this.cyberComStore.contract.submitChangeVotingParameters({
                 parameters: vps,
                 duration: BigInt(0),
-                owner: this.cyberComStore.signer.address
+                owner: this.cyberComStore.signer.address,
+                maxOpenDuration: BigInt(0),
             });
             await resp.wait();
             return true;

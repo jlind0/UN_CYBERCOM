@@ -106,6 +106,18 @@ export declare namespace MembershipManagement {
     proposalId: bigint;
   };
 
+  export type MotionStruct = {
+    member: AddressLike;
+    timestamp: BigNumberish;
+    proposalId: BigNumberish;
+  };
+
+  export type MotionStructOutput = [
+    member: string,
+    timestamp: bigint,
+    proposalId: bigint
+  ] & { member: string; timestamp: bigint; proposalId: bigint };
+
   export type MembershipProposalResponseStruct = {
     id: BigNumberish;
     member: AddressLike;
@@ -120,6 +132,9 @@ export declare namespace MembershipManagement {
     owner: AddressLike;
     proposalAddress: AddressLike;
     packageAddress: AddressLike;
+    timestamp: BigNumberish;
+    motionCloseTimestamp: BigNumberish;
+    motions: MembershipManagement.MotionStruct[];
   };
 
   export type MembershipProposalResponseStructOutput = [
@@ -135,7 +150,10 @@ export declare namespace MembershipManagement {
     votingStarted: boolean,
     owner: string,
     proposalAddress: string,
-    packageAddress: string
+    packageAddress: string,
+    timestamp: bigint,
+    motionCloseTimestamp: bigint,
+    motions: MembershipManagement.MotionStructOutput[]
   ] & {
     id: bigint;
     member: string;
@@ -150,6 +168,49 @@ export declare namespace MembershipManagement {
     owner: string;
     proposalAddress: string;
     packageAddress: string;
+    timestamp: bigint;
+    motionCloseTimestamp: bigint;
+    motions: MembershipManagement.MotionStructOutput[];
+  };
+
+  export type ProposalResponseStruct = {
+    id: BigNumberish;
+    votes: MembershipManagement.VoteStruct[];
+    duration: BigNumberish;
+    status: BigNumberish;
+    isProcessing: boolean;
+    votingStarted: boolean;
+    owner: AddressLike;
+    proposalAddress: AddressLike;
+    timestamp: BigNumberish;
+    motionCloseTimestamp: BigNumberish;
+    motions: MembershipManagement.MotionStruct[];
+  };
+
+  export type ProposalResponseStructOutput = [
+    id: bigint,
+    votes: MembershipManagement.VoteStructOutput[],
+    duration: bigint,
+    status: bigint,
+    isProcessing: boolean,
+    votingStarted: boolean,
+    owner: string,
+    proposalAddress: string,
+    timestamp: bigint,
+    motionCloseTimestamp: bigint,
+    motions: MembershipManagement.MotionStructOutput[]
+  ] & {
+    id: bigint;
+    votes: MembershipManagement.VoteStructOutput[];
+    duration: bigint;
+    status: bigint;
+    isProcessing: boolean;
+    votingStarted: boolean;
+    owner: string;
+    proposalAddress: string;
+    timestamp: bigint;
+    motionCloseTimestamp: bigint;
+    motions: MembershipManagement.MotionStructOutput[];
   };
 }
 
@@ -161,18 +222,24 @@ export interface MembershipProposalInterface extends Interface {
       | "enlistPackage"
       | "getDocuments"
       | "getMembershipResponse"
+      | "getMotions"
       | "getNation"
+      | "getRawProposal"
       | "getThreshold"
       | "getVotes"
       | "groupId"
       | "id"
       | "isProcessing"
+      | "motion"
+      | "motionClosesTimestamp"
+      | "motionDuration"
       | "owner"
       | "packageAddress"
       | "proposalType"
       | "randomNumber"
       | "setProcessing"
       | "setRandomNumber"
+      | "startMotioning"
       | "startVoting"
       | "status"
       | "timestamp"
@@ -183,6 +250,7 @@ export interface MembershipProposalInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "Motioned"
       | "StatusUpdated"
       | "VoteCasted"
       | "VotingCompleted"
@@ -206,7 +274,15 @@ export interface MembershipProposalInterface extends Interface {
     functionFragment: "getMembershipResponse",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "getMotions",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "getNation", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getRawProposal",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getThreshold",
     values?: undefined
@@ -216,6 +292,15 @@ export interface MembershipProposalInterface extends Interface {
   encodeFunctionData(functionFragment: "id", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isProcessing",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "motion", values: [AddressLike]): string;
+  encodeFunctionData(
+    functionFragment: "motionClosesTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "motionDuration",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -238,6 +323,10 @@ export interface MembershipProposalInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setRandomNumber",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "startMotioning",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "startVoting",
@@ -275,7 +364,12 @@ export interface MembershipProposalInterface extends Interface {
     functionFragment: "getMembershipResponse",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getMotions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getNation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRawProposal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getThreshold",
     data: BytesLike
@@ -285,6 +379,15 @@ export interface MembershipProposalInterface extends Interface {
   decodeFunctionResult(functionFragment: "id", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isProcessing",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "motion", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "motionClosesTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "motionDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -309,6 +412,10 @@ export interface MembershipProposalInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "startMotioning",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "startVoting",
     data: BytesLike
   ): Result;
@@ -323,6 +430,19 @@ export interface MembershipProposalInterface extends Interface {
     functionFragment: "votingStarted",
     data: BytesLike
   ): Result;
+}
+
+export namespace MotionedEvent {
+  export type InputTuple = [proposalId: BigNumberish, member: AddressLike];
+  export type OutputTuple = [proposalId: bigint, member: string];
+  export interface OutputObject {
+    proposalId: bigint;
+    member: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace StatusUpdatedEvent {
@@ -455,9 +575,21 @@ export interface MembershipProposal extends BaseContract {
     "view"
   >;
 
+  getMotions: TypedContractMethod<
+    [],
+    [MembershipManagement.MotionStructOutput[]],
+    "view"
+  >;
+
   getNation: TypedContractMethod<
     [],
     [MembershipManagement.NationStructOutput],
+    "view"
+  >;
+
+  getRawProposal: TypedContractMethod<
+    [],
+    [MembershipManagement.ProposalResponseStructOutput],
     "view"
   >;
 
@@ -474,6 +606,12 @@ export interface MembershipProposal extends BaseContract {
   id: TypedContractMethod<[], [bigint], "view">;
 
   isProcessing: TypedContractMethod<[], [boolean], "view">;
+
+  motion: TypedContractMethod<[member: AddressLike], [void], "nonpayable">;
+
+  motionClosesTimestamp: TypedContractMethod<[], [bigint], "view">;
+
+  motionDuration: TypedContractMethod<[], [bigint], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
@@ -494,6 +632,8 @@ export interface MembershipProposal extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  startMotioning: TypedContractMethod<[], [void], "nonpayable">;
 
   startVoting: TypedContractMethod<[sender: AddressLike], [void], "nonpayable">;
 
@@ -549,8 +689,22 @@ export interface MembershipProposal extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getMotions"
+  ): TypedContractMethod<
+    [],
+    [MembershipManagement.MotionStructOutput[]],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getNation"
   ): TypedContractMethod<[], [MembershipManagement.NationStructOutput], "view">;
+  getFunction(
+    nameOrSignature: "getRawProposal"
+  ): TypedContractMethod<
+    [],
+    [MembershipManagement.ProposalResponseStructOutput],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "getThreshold"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -564,6 +718,15 @@ export interface MembershipProposal extends BaseContract {
   getFunction(
     nameOrSignature: "isProcessing"
   ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "motion"
+  ): TypedContractMethod<[member: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "motionClosesTimestamp"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "motionDuration"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -582,6 +745,9 @@ export interface MembershipProposal extends BaseContract {
   getFunction(
     nameOrSignature: "setRandomNumber"
   ): TypedContractMethod<[random: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "startMotioning"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "startVoting"
   ): TypedContractMethod<[sender: AddressLike], [void], "nonpayable">;
@@ -605,6 +771,13 @@ export interface MembershipProposal extends BaseContract {
     nameOrSignature: "votingStarted"
   ): TypedContractMethod<[], [boolean], "view">;
 
+  getEvent(
+    key: "Motioned"
+  ): TypedContractEvent<
+    MotionedEvent.InputTuple,
+    MotionedEvent.OutputTuple,
+    MotionedEvent.OutputObject
+  >;
   getEvent(
     key: "StatusUpdated"
   ): TypedContractEvent<
@@ -635,6 +808,17 @@ export interface MembershipProposal extends BaseContract {
   >;
 
   filters: {
+    "Motioned(uint256,address)": TypedContractEvent<
+      MotionedEvent.InputTuple,
+      MotionedEvent.OutputTuple,
+      MotionedEvent.OutputObject
+    >;
+    Motioned: TypedContractEvent<
+      MotionedEvent.InputTuple,
+      MotionedEvent.OutputTuple,
+      MotionedEvent.OutputObject
+    >;
+
     "StatusUpdated(uint256,uint8)": TypedContractEvent<
       StatusUpdatedEvent.InputTuple,
       StatusUpdatedEvent.OutputTuple,

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.7;
 import "./MembershipManagement.sol";
 import "./Proposal.sol";
+
 contract CouncilManager{
     bytes32 public immutable BROKER_ROLE = keccak256("BROKER");
     bytes32 public immutable POWER_ROLE = keccak256("POWER");
@@ -15,7 +16,7 @@ contract CouncilManager{
         return councilRoles;
     }
 
-    uint totalNations;
+    uint public totalNations;
     uint totalCouncilGroups;
     address[] nationAddresses;
     mapping(address => MembershipManagement.Nation) nations;
@@ -32,6 +33,7 @@ contract CouncilManager{
         councils[BROKER_ROLE].groups.push();
         councils[BROKER_ROLE].groups[0].id = ++totalCouncilGroups;
         councils[BROKER_ROLE].groups[0].name = "Primary";
+        councils[BROKER_ROLE].motionRules.numberOfSeconds = 0;
         councilGroups[totalCouncilGroups] = BROKER_ROLE;
         
         councilRoles.push(BROKER_ROLE);
@@ -41,6 +43,7 @@ contract CouncilManager{
         councils[POWER_ROLE].groups.push();
         councils[POWER_ROLE].groups[0].id = ++totalCouncilGroups;
         councils[POWER_ROLE].groups[0].name = "Primary";
+        councils[POWER_ROLE].motionRules.numberOfSeconds = 0;
         councilGroups[totalCouncilGroups] = POWER_ROLE;
         
         councilRoles.push(POWER_ROLE);
@@ -50,12 +53,21 @@ contract CouncilManager{
         councils[CENTRAL_ROLE].groups.push();
         councils[CENTRAL_ROLE].groups[0].name = "Primary";
         councils[CENTRAL_ROLE].groups[0].id = ++totalCouncilGroups;
+        councils[CENTRAL_ROLE].motionRules.numberOfSeconds = 1;
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(BROKER_ROLE);
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(POWER_ROLE);
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(CENTRAL_ROLE);
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(EMERGING_ROLE);
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(LESSER_ROLE);
+        councils[CENTRAL_ROLE].motionRules.councilsThatCanMotion.push(INDUSTRY_ROLE);
         councilGroups[totalCouncilGroups] = CENTRAL_ROLE;
         
         councilRoles.push(CENTRAL_ROLE);
         councils[EMERGING_ROLE].name = "Emerging";
         councils[EMERGING_ROLE].role = EMERGING_ROLE;
         councils[EMERGING_ROLE].votingParameters = MembershipManagement.VotingParameters(true, false, 1, 0, 5, 3, 1, 4, false);
+        councils[EMERGING_ROLE].motionRules.numberOfSeconds = 1;
+        councils[EMERGING_ROLE].motionRules.onlyWithinOwnGroup = true;
         councils[EMERGING_ROLE].groups.push();
         councils[EMERGING_ROLE].groups[0].id = ++totalCouncilGroups;
         councils[EMERGING_ROLE].groups[0].name = "Group A";
@@ -69,6 +81,8 @@ contract CouncilManager{
         councils[GENERAL_ROLE].name = "General";
         councils[GENERAL_ROLE].role = GENERAL_ROLE;
         councils[GENERAL_ROLE].votingParameters = MembershipManagement.VotingParameters(false, false, 0, 0, 1, 1, 1, 2, true);
+        councils[GENERAL_ROLE].motionRules.requiresMajority = true;
+        councils[GENERAL_ROLE].motionRules.onlyWithinOwnGroup = true;
         councils[GENERAL_ROLE].groups.push();
         councils[GENERAL_ROLE].groups[0].name = "Primary";
         councils[GENERAL_ROLE].groups[0].id = ++totalCouncilGroups;
@@ -78,6 +92,7 @@ contract CouncilManager{
         councils[LESSER_ROLE].name = "Lesser";
         councils[LESSER_ROLE].role = LESSER_ROLE;
         councils[LESSER_ROLE].votingParameters = MembershipManagement.VotingParameters(false, false, 0, 1, 3, 1, 1, 5, false);
+        councils[LESSER_ROLE].motionRules.disabled = true;
         councils[LESSER_ROLE].groups.push();
         councils[LESSER_ROLE].groups[0].name = "Primary";
         councils[LESSER_ROLE].groups[0].id = ++totalCouncilGroups;
@@ -87,6 +102,8 @@ contract CouncilManager{
         councils[INDUSTRY_ROLE].name = "Industry";
         councils[INDUSTRY_ROLE].role = INDUSTRY_ROLE;
         councils[INDUSTRY_ROLE].votingParameters = MembershipManagement.VotingParameters(false, false, 0, 1, 7, 1, 1, 1, false);
+        councils[INDUSTRY_ROLE].motionRules.numberOfSeconds = 2;
+        councils[INDUSTRY_ROLE].motionRules.onlyWithinOwnGroup = true;
         councils[INDUSTRY_ROLE].groups.push();
         councils[INDUSTRY_ROLE].groups[0].name = "Primary";
         councils[INDUSTRY_ROLE].groups[0].id = ++totalCouncilGroups;
@@ -295,5 +312,24 @@ contract CouncilManager{
     function getCouncilForNation(address nationId) public view returns(MembershipManagement.Council memory){
         MembershipManagement.Council memory c = councils[nationsCouncil[nationId]];
         return c;
+    }
+    function getCouncilGroupForNation(address nationId) public view returns(MembershipManagement.CouncilGroup memory){
+        uint i = 0;
+        while(i < councilRoles.length){
+            MembershipManagement.Council memory council = councils[nationsCouncil[nationId]];
+            uint k = 0;
+            while(k < council.groups.length){
+                MembershipManagement.CouncilGroup memory group = council.groups[k];
+                uint j = 0;
+                while(j < group.members.length){
+                    if(group.members[j].id == nationId)
+                        return group;
+                    j++;
+                }
+                k++;
+            }
+            i++;
+        }
+        revert();
     }
 }

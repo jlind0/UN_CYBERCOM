@@ -11,6 +11,8 @@ const MembershipRemovalsView = observer(({ store }: CybercomStoreParameter) => (
         <CTabs activeItemKey="entered">
             <CTabList variant="tabs">
                 <CTab itemKey="entered">Entered</CTab>
+                <CTab itemKey="motioned">Motioning</CTab>
+                <CTab itemKey="motionFailed">Motion Failed</CTab>
                 <CTab itemKey="pending">Pending</CTab>
                 <CTab itemKey="ready">Ready</CTab>
                 <CTab itemKey="accepted">Accepted</CTab>
@@ -19,6 +21,12 @@ const MembershipRemovalsView = observer(({ store }: CybercomStoreParameter) => (
             <CTabContent>
                 <CTabPanel className="p-3" itemKey="entered">
                     <MembershipRemovalTableView proposals={store.removeMemberships.enteredProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motioned">
+                    <MembershipRemovalTableView proposals={store.removeMemberships.motioningProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motionFailed">
+                    <MembershipRemovalTableView proposals={store.removeMemberships.motionFailedProposals} />
                 </CTabPanel>
                 <CTabPanel className="p-3" itemKey="pending">
                     <MembershipRemovalTableView proposals={store.removeMemberships.pendingProposals} />

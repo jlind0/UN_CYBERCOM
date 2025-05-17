@@ -12,6 +12,8 @@ const VotingParametersProposalsView = observer(({ store }: CybercomStoreParamete
         <CTabs activeItemKey="entered">
             <CTabList variant="tabs">
                 <CTab itemKey="entered">Entered</CTab>
+                <CTab itemKey="motioned">Motioning</CTab>
+                <CTab itemKey="motionFailed">Motion Failed</CTab>
                 <CTab itemKey="pending">Pending</CTab>
                 <CTab itemKey="ready">Ready</CTab>
                 <CTab itemKey="accepted">Accepted</CTab>
@@ -20,6 +22,12 @@ const VotingParametersProposalsView = observer(({ store }: CybercomStoreParamete
             <CTabContent>
                 <CTabPanel className="p-3" itemKey="entered">
                     <ChangeParametersTableView proposals={store.changeVotingParameters.enteredProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motioned">
+                    <ChangeParametersTableView proposals={store.changeVotingParameters.motioningProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motionFailed">
+                    <ChangeParametersTableView proposals={store.changeVotingParameters.motionFailedProposals} />
                 </CTabPanel>
                 <CTabPanel className="p-3" itemKey="pending">
                     <ChangeParametersTableView proposals={store.changeVotingParameters.pendingProposals} />

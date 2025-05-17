@@ -23,13 +23,17 @@ abstract contract Proposal is DocumentsHolder {
     address public owner;
     address public packageAddress;
     address[] voters;
+    address[] motioners;
+    uint public motionClosesTimestamp;
+    uint public motionDuration;
     mapping(address => MembershipManagement.Vote) votes;
+    mapping(address => MembershipManagement.Motion) motions;
     MembershipManagement.ContractAddresses contractAddresses;
     event VotingStarted(uint indexed proposalId);
     event VotingCompleted(uint indexed proposalId);
     event StatusUpdated(uint indexed proposalId, MembershipManagement.ApprovalStatus newStatus);
     event VoteCasted(uint indexed proposalId, address member, bool vote);
-
+    event Motioned(uint indexed proposalId, address member);
     error AuthorizationError();
     modifier isFromDAOorVoting() {
         if(msg.sender != contractAddresses.daoAddress && msg.sender != contractAddresses.votingAddress && msg.sender != contractAddresses.membershipManagerAddress && msg.sender != contractAddresses.membershipRemovalAddress && msg.sender != owner && msg.sender != packageAddress) revert AuthorizationError();
@@ -50,15 +54,17 @@ abstract contract Proposal is DocumentsHolder {
         MembershipManagement.ContractAddresses memory _contractAddresses,
         uint _id, 
         MembershipManagement.ProposalTypes _proposalType, 
-        uint _duration
+        uint _duration,
+        uint _openDuration
     ) {
         owner = _owner;
         contractAddresses = _contractAddresses;
         id = _id;
         proposalType = _proposalType;
-        duration = _duration < 5 minutes ? 5 minutes : _duration;
+        duration = _duration;
         status = MembershipManagement.ApprovalStatus.Entered;
         timestamp = block.timestamp;
+        motionDuration = _openDuration;
     }
 
     function getThreshold() public virtual view returns(uint16);
@@ -84,7 +90,7 @@ abstract contract Proposal is DocumentsHolder {
     function setRandomNumber(uint random) public isFromVoting() {
         randomNumber = random;
     }
-
+    error InvalidStatus();
     /**
      * @dev Marks the proposal as processing or not.
      * @param processing The new state of processing to be set.
@@ -108,6 +114,50 @@ abstract contract Proposal is DocumentsHolder {
             vs[i] = votes[voters[i]];
         }
         return vs;
+    }
+    function getMotions() public view returns(MembershipManagement.Motion[] memory){
+        if(packageAddress != address(0)){
+            ProposalPackage pp = ProposalPackage(packageAddress);
+            return pp.getMotions();
+        }
+        MembershipManagement.Motion[] memory ms = new MembershipManagement.Motion[](motioners.length);
+        for (uint i = 0; i < motioners.length; i++) {
+            ms[i] = motions[motioners[i]];
+        }
+        return ms;
+    }
+    function getRawProposal() public view returns(MembershipManagement.ProposalResponse memory){
+        return MembershipManagement.ProposalResponse(
+            id,
+            getVotes(),
+            duration,
+            status,
+            isProcessing,
+            votingStarted,
+            owner,
+            address(this),
+            timestamp,
+            motionClosesTimestamp,
+            getMotions()
+        );
+    }
+    error CannotMotion();
+    function startMotioning() public isFromDAO(){
+        if(status != MembershipManagement.ApprovalStatus.Entered)
+            revert CannotMotion();
+        motionClosesTimestamp = block.timestamp + motionDuration;
+        status = MembershipManagement.ApprovalStatus.Motioning;
+    }
+    error MotioningClosed();
+    function motion(address member) public isFromDAO(){
+        if(packageAddress != address(0))
+            revert CanOnlyVotePackage();
+        if(motionClosesTimestamp < block.timestamp || status != MembershipManagement.ApprovalStatus.Motioning)
+            revert MotioningClosed();
+        if(motions[member].proposalId != id)
+            motioners.push(member);
+        motions[member] = MembershipManagement.Motion(member, block.timestamp, id);
+        emit Motioned(id, member);
     }
     error VotingNotStarted();
     error VotingClosed();
@@ -176,9 +226,10 @@ contract MembershipProposal is Proposal {
         uint _id,
         uint _duration, 
         MembershipManagement.Nation memory _nation, 
-        uint _groupId
+        uint _groupId,
+        uint _openDuration
     ) 
-        Proposal(_owner, _contractAddresses, _id, MembershipManagement.ProposalTypes.Membership, _duration)
+        Proposal(_owner, _contractAddresses, _id, MembershipManagement.ProposalTypes.Membership, _duration, _openDuration)
     {
         nation = _nation;
         groupId = _groupId;
@@ -211,7 +262,10 @@ contract MembershipProposal is Proposal {
             votingStarted, 
             owner, 
             address(this),
-            packageAddress
+            packageAddress,
+            timestamp,
+            motionClosesTimestamp,
+            getMotions()
         );
     }
     function getThreshold() public pure override returns(uint16){
@@ -227,9 +281,10 @@ contract MembershipRemovalProposal is Proposal{
         MembershipManagement.ContractAddresses memory _contractAddresses,
         uint _id,
         uint _duration, 
-        MembershipManagement.Nation memory _nation
+        MembershipManagement.Nation memory _nation,
+        uint _openDuration
     ) 
-        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.MembershipRemoval, _duration)
+        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.MembershipRemoval, _duration, _openDuration)
     {
         nationToRemove = _nation;
     }
@@ -247,7 +302,10 @@ contract MembershipRemovalProposal is Proposal{
             votingStarted, 
             owner, 
             address(this),
-            packageAddress
+            packageAddress,
+            timestamp,
+            motionClosesTimestamp,
+            getMotions()
         );
     }
     function getThreshold() public pure override returns(uint16){
@@ -261,9 +319,10 @@ contract ChangeVotingParametersProposal is Proposal{
         MembershipManagement.ContractAddresses memory _contractAddresses,
         uint _id,
         uint _duration, 
-        MembershipManagement.ChangeVotingParametersRole[] memory _parameters
+        MembershipManagement.ChangeVotingParametersRole[] memory _parameters,
+        uint _openDuration
     ) 
-        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.UpdateVotingParameters, _duration)
+        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.UpdateVotingParameters, _duration, _openDuration)
     {
         uint i = 0;
         while(i < _parameters.length){
@@ -292,7 +351,10 @@ contract ChangeVotingParametersProposal is Proposal{
             votingStarted, 
             owner, 
             address(this),
-            packageAddress
+            packageAddress,
+            timestamp,
+            motionClosesTimestamp,
+            getMotions()
         );
     }
     function getThreshold() public pure override returns(uint16){
@@ -305,8 +367,9 @@ contract ProposalPackage is Proposal{
     constructor(address _owner, 
         MembershipManagement.ContractAddresses memory _contractAddresses,
         uint _id,
-        uint _duration)
-        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.Package, _duration){
+        uint _duration,
+        uint _openDuration)
+        Proposal(_owner, _contractAddresses , _id, MembershipManagement.ProposalTypes.Package, _duration, _openDuration){
 
         }
     error ProposalIsClosed();
@@ -340,7 +403,10 @@ contract ProposalPackage is Proposal{
             isProcessing,
             votingStarted,
             owner,
-            address(this)
+            address(this),
+            timestamp,
+            motionClosesTimestamp,
+            getMotions()
         );
     }  
 }

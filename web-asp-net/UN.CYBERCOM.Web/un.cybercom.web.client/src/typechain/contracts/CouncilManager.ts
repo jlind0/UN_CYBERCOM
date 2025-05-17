@@ -56,6 +56,28 @@ export declare namespace MembershipManagement {
     avgVotes: boolean;
   };
 
+  export type MotionRulesStruct = {
+    numberOfSeconds: BigNumberish;
+    requiresMajority: boolean;
+    onlyWithinOwnGroup: boolean;
+    disabled: boolean;
+    councilsThatCanMotion: BytesLike[];
+  };
+
+  export type MotionRulesStructOutput = [
+    numberOfSeconds: bigint,
+    requiresMajority: boolean,
+    onlyWithinOwnGroup: boolean,
+    disabled: boolean,
+    councilsThatCanMotion: string[]
+  ] & {
+    numberOfSeconds: bigint;
+    requiresMajority: boolean;
+    onlyWithinOwnGroup: boolean;
+    disabled: boolean;
+    councilsThatCanMotion: string[];
+  };
+
   export type NationStruct = { id: AddressLike; name: string };
 
   export type NationStructOutput = [id: string, name: string] & {
@@ -83,6 +105,7 @@ export declare namespace MembershipManagement {
     name: string;
     role: BytesLike;
     votingParameters: MembershipManagement.VotingParametersStruct;
+    motionRules: MembershipManagement.MotionRulesStruct;
     groups: MembershipManagement.CouncilGroupStruct[];
   };
 
@@ -90,11 +113,13 @@ export declare namespace MembershipManagement {
     name: string,
     role: string,
     votingParameters: MembershipManagement.VotingParametersStructOutput,
+    motionRules: MembershipManagement.MotionRulesStructOutput,
     groups: MembershipManagement.CouncilGroupStructOutput[]
   ] & {
     name: string;
     role: string;
     votingParameters: MembershipManagement.VotingParametersStructOutput;
+    motionRules: MembershipManagement.MotionRulesStructOutput;
     groups: MembershipManagement.CouncilGroupStructOutput[];
   };
 
@@ -171,12 +196,14 @@ export interface CouncilManagerInterface extends Interface {
       | "getCouncil"
       | "getCouncilForGroupId"
       | "getCouncilForNation"
+      | "getCouncilGroupForNation"
       | "getCouncilRoleForGroup"
       | "getCouncilVotes"
       | "getCouncils"
       | "getNation"
       | "getNationCount"
       | "removeNation"
+      | "totalNations"
       | "updateVotingParameters"
   ): FunctionFragment;
 
@@ -241,6 +268,10 @@ export interface CouncilManagerInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getCouncilGroupForNation",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getCouncilRoleForGroup",
     values: [BigNumberish]
   ): string;
@@ -263,6 +294,10 @@ export interface CouncilManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "removeNation",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalNations",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "updateVotingParameters",
@@ -324,6 +359,10 @@ export interface CouncilManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getCouncilGroupForNation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getCouncilRoleForGroup",
     data: BytesLike
   ): Result;
@@ -342,6 +381,10 @@ export interface CouncilManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "removeNation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalNations",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -447,6 +490,12 @@ export interface CouncilManager extends BaseContract {
     "view"
   >;
 
+  getCouncilGroupForNation: TypedContractMethod<
+    [nationId: AddressLike],
+    [MembershipManagement.CouncilGroupStructOutput],
+    "view"
+  >;
+
   getCouncilRoleForGroup: TypedContractMethod<
     [groupId: BigNumberish],
     [string],
@@ -478,6 +527,8 @@ export interface CouncilManager extends BaseContract {
     [string],
     "nonpayable"
   >;
+
+  totalNations: TypedContractMethod<[], [bigint], "view">;
 
   updateVotingParameters: TypedContractMethod<
     [proposalAddress: AddressLike],
@@ -551,6 +602,13 @@ export interface CouncilManager extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getCouncilGroupForNation"
+  ): TypedContractMethod<
+    [nationId: AddressLike],
+    [MembershipManagement.CouncilGroupStructOutput],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getCouncilRoleForGroup"
   ): TypedContractMethod<[groupId: BigNumberish], [string], "view">;
   getFunction(
@@ -580,6 +638,9 @@ export interface CouncilManager extends BaseContract {
   getFunction(
     nameOrSignature: "removeNation"
   ): TypedContractMethod<[nationId: AddressLike], [string], "nonpayable">;
+  getFunction(
+    nameOrSignature: "totalNations"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "updateVotingParameters"
   ): TypedContractMethod<[proposalAddress: AddressLike], [void], "nonpayable">;

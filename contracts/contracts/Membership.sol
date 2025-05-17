@@ -73,7 +73,8 @@ contract VotingParametersManager{
            dao.getContractAddresses(), 
             memberManager.getNextProposalId(),
             request.duration,
-            request.parameters
+            request.parameters,
+            request.maxOpenDuration
         );
         Voting v = Voting(votingAddress);
         address propAddress = address(prop);
@@ -139,7 +140,7 @@ contract PackageProposalManager{
         ProposalPackage prop = new ProposalPackage(
             request.owner, 
             dao.getContractAddresses(), 
-            memberManager.getNextProposalId(), request.duration);
+            memberManager.getNextProposalId(), request.duration, request.maxOpenDuration);
         Voting v = Voting(votingAddress);
         address propAddress = address(prop);
         v.addProposal(propAddress);
@@ -227,7 +228,7 @@ contract MembershipRemovalManager{
            dao.getContractAddresses(), 
             memberManager.getNextProposalId(),
             request.duration,
-            manager.getNation(request.nationToRemove)
+            manager.getNation(request.nationToRemove), request.maxOpenDuration
         );
         Voting v = Voting(votingAddress);
         address propAddress = address(prop);
@@ -298,7 +299,8 @@ contract MembershipManager{
             memberManager.getNextProposalId(),
             request.duration,
             request.newNation,
-            request.groupId
+            request.groupId,
+            request.maxOpenDuration
         );
         Voting v = Voting(votingAddress);
         address propAddress = address(prop);

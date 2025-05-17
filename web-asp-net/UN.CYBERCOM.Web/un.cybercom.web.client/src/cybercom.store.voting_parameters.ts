@@ -8,6 +8,7 @@ import { VotingParametersManager__factory } from './typechain';
 import { AddDocumentViewModel } from './cybercom.store.documents';
 import { VoteViewModel } from './cybercom.store.voting';
 import { ZeroAddress } from 'ethers/constants';
+import { MotionViewModel } from './cybercom.store.motions';
 export class VotingParametersViewModels {
     votingParameters: VotingParametersViewModel[] = [];
     constructor() {
@@ -87,6 +88,8 @@ export class VotingParametersProposalViewModel extends ProposalViewModel<CMM.Cha
             votes: observable,
             vote: observable,
             packageAddress: observable,
+            motions: observable,
+            motionClosesTimestamp: observable,
         });
     }
     updateObj(obj: CMM.ChangeVotingParametersResponseStructOutput): void {
@@ -103,6 +106,12 @@ export class VotingParametersProposalViewModel extends ProposalViewModel<CMM.Cha
                 vm.updateObj(v);
                 this.votes.push(vm);
             });
+            this.motions.length = 0;
+            obj.motions.forEach(m => {
+                const vm = new MotionViewModel(this.councils);
+                vm.updateObj(m);
+                this.motions.push(vm);
+            });
             this.votingParameters.updateObj(votingParms);
             this.id = obj.id;
             this.duration = fromUnixTimestamp(obj.duration);
@@ -113,6 +122,7 @@ export class VotingParametersProposalViewModel extends ProposalViewModel<CMM.Cha
             this.owner = obj.owner;
             this.proposalAddress = obj.proposalAddress;
             this.addDocument = new AddDocumentViewModel(this.contractModel, obj.proposalAddress);
+            this.motionClosesTimestamp = fromUnixTimestamp(obj.motionCloseTimestamp);
         });
     }
 }
@@ -128,7 +138,9 @@ export class VotingParametersProposalsViewModel extends ProposalsViewModel<CMM.C
             readyProposals: observable,
             acceptedProposals: observable,
             rejectedProposals: observable,
-            isLoading: observable
+            isLoading: observable,
+            motionFailedProposals: observable,
+            motioningProposals: observable,
         });
     }
     async loadProposals(status: ApprovalStatus): Promise<VotingParametersProposalViewModel[]> {

@@ -10,7 +10,7 @@ const ProposalDataCells = observer(({ item }: ProposalItemParameter) => (
         <CButton color="primary" onClick={async () => await item.load()}>Load Documents</CButton>
         {item && item.status == ApprovalStatus.Entered && item.addDocument && (
             <>
-                <CButton color="primary" onClick={async () => await item.startVoting()}>Start Voting</CButton>
+                <CButton color="primary" onClick={async () => await item.motion()}>Motion</CButton>
                 <AddDocumentView addDocument={item.addDocument} />
             </>
         )}
@@ -28,6 +28,27 @@ const ProposalDataCells = observer(({ item }: ProposalItemParameter) => (
         {
             item.status != ApprovalStatus.Entered && (
                 <CTableDataCell>
+                    {item.status == ApprovalStatus.Motioning && (
+                        <>
+                            {item.motionClosesTimestamp && item.motionClosesTimestamp > new Date() && (
+                                <>
+                                    <CButton
+                                        color="primary"
+                                        onClick={async () => await item.motion()}>Motion</CButton>
+                                    <CButton
+                                        color="primary"
+                                        onClick={async () => await item.checkMotionCarry()}>Check Motion Carry</CButton>
+                                </>
+                            )}
+                            {item.motionClosesTimestamp && item.motionClosesTimestamp <= new Date() && (
+                                <>
+                                    <CButton
+                                        color="primary"
+                                        onClick={async () => await item.checkMotionCarry()}>Check Motion Carry</CButton>
+                                </>
+                            )}
+                        </>
+                    )}
                     {item.status == ApprovalStatus.Pending && (
                         <>
                             {item.duration && item.duration > new Date() && (
@@ -59,11 +80,19 @@ const ProposalDataCells = observer(({ item }: ProposalItemParameter) => (
                                 onClick={async () => await item.completeTally()}>Complete Tally</CButton>
                         </>
                     )}
+                    <h3>Motions</h3>
+                    {item.motions.map((motion, groupIndex) => (
+                        <div key={groupIndex}>
+                            {motion.member?.name} {motion.timestamp?.toISOString()}
+                        </div>
+                    ))}
+                    <h3>Votes</h3>
                     {item.votes.map((vote, groupIndex) => (
                         <div key={groupIndex}>
                             {vote.member?.name} {vote.voteCasted?.toString()} {vote.timestamp?.toISOString()}
                         </div>
                     ))}
+                    
                 </CTableDataCell>
             )}
         </>

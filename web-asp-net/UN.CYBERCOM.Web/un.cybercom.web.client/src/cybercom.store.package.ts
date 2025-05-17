@@ -7,6 +7,7 @@ import { VoteViewModel } from "./cybercom.store.voting";
 import { PackageProposalManager__factory } from "./typechain";
 import { MembershipManagement } from "./typechain/contracts/Proposal.sol/ProposalPackage";
 import { UpdatePackageViewModel } from "./cybercom.store.package.add";
+import { MotionViewModel } from "./cybercom.store.motions";
 
 export class PackagesViewModel extends ProposalsViewModel<MembershipManagement.ProposalPackageResponseStructOutput, PackageViewModel> {
     councils: CouncilsViewModel;
@@ -20,7 +21,9 @@ export class PackagesViewModel extends ProposalsViewModel<MembershipManagement.P
             readyProposals: observable,
             acceptedProposals: observable,
             rejectedProposals: observable,
-            isLoading: observable
+            isLoading: observable,
+            motionFailedProposals: observable,
+            motioningProposals: observable
         });
     }
     async loadProposals(status: ApprovalStatus): Promise<PackageViewModel[]> {
@@ -60,12 +63,20 @@ export class PackageViewModel extends ProposalViewModel<MembershipManagement.Pro
             vote: observable,
             packageAddress: observable,
             updateModel: observable,
+            motions: observable,
+            motionClosesTimestamp: observable,
         });
     }
     updateObj(obj: MembershipManagement.ProposalPackageResponseStructOutput) {
         runInAction(() => {
             this.id = obj.id;
             this.votes.length = 0;
+            this.motions.length = 0;
+            obj.motions.forEach(m => {
+                const vm = new MotionViewModel(this.councils);
+                vm.updateObj(m);
+                this.motions.push(vm);
+            });
             obj.votes.forEach(v => {
                 const vm = new VoteViewModel(this.councils);
                 vm.updateObj(v);
@@ -83,6 +94,7 @@ export class PackageViewModel extends ProposalViewModel<MembershipManagement.Pro
             this.proposalAddress = obj.proposalAddress;
             this.addDocument = new AddDocumentViewModel(this.contractModel, obj.proposalAddress);
             this.updateModel = new UpdatePackageViewModel(this.contractModel, obj.proposalAddress);
+            this.motionClosesTimestamp = fromUnixTimestamp(obj.motionCloseTimestamp);
         });
     }
 

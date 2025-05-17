@@ -30,7 +30,8 @@ export class AddMemberStore {
                 },
                 member: this.newNationAddress,
                 duration: BigInt(0),
-                groupId: BigInt(this.selectedGroupId)
+                groupId: BigInt(this.selectedGroupId),
+                maxOpenDuration: BigInt(0),
             });
             await resp.wait();
             return true;

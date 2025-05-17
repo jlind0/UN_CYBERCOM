@@ -11,6 +11,8 @@ const PackagesView = observer(({ store }: CybercomStoreParameter) => (
         <CTabs activeItemKey="entered">
             <CTabList variant="tabs">
                 <CTab itemKey="entered">Entered</CTab>
+                <CTab itemKey="motioned">Motioning</CTab>
+                <CTab itemKey="motionFailed">Motion Failed</CTab>
                 <CTab itemKey="pending">Pending</CTab>
                 <CTab itemKey="ready">Ready</CTab>
                 <CTab itemKey="accepted">Accepted</CTab>
@@ -19,6 +21,12 @@ const PackagesView = observer(({ store }: CybercomStoreParameter) => (
             <CTabContent>
                 <CTabPanel className="p-3" itemKey="entered">
                     <PackagesTableView proposals={store.packages.enteredProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motioned">
+                    <PackagesTableView proposals={store.packages.motioningProposals} />
+                </CTabPanel>
+                <CTabPanel className="p-3" itemKey="motionFailed">
+                    <PackagesTableView proposals={store.packages.motionFailedProposals} />
                 </CTabPanel>
                 <CTabPanel className="p-3" itemKey="pending">
                     <PackagesTableView proposals={store.packages.pendingProposals} />

@@ -50,6 +50,18 @@ export declare namespace MembershipManagement {
     proposalId: bigint;
   };
 
+  export type MotionStruct = {
+    member: AddressLike;
+    timestamp: BigNumberish;
+    proposalId: BigNumberish;
+  };
+
+  export type MotionStructOutput = [
+    member: string,
+    timestamp: bigint,
+    proposalId: bigint
+  ] & { member: string; timestamp: bigint; proposalId: bigint };
+
   export type MembershipRemovalResponseStruct = {
     id: BigNumberish;
     nationToRemove: MembershipManagement.NationStruct;
@@ -61,6 +73,9 @@ export declare namespace MembershipManagement {
     owner: AddressLike;
     proposalAddress: AddressLike;
     packageAddress: AddressLike;
+    timestamp: BigNumberish;
+    motionCloseTimestamp: BigNumberish;
+    motions: MembershipManagement.MotionStruct[];
   };
 
   export type MembershipRemovalResponseStructOutput = [
@@ -73,7 +88,10 @@ export declare namespace MembershipManagement {
     votingStarted: boolean,
     owner: string,
     proposalAddress: string,
-    packageAddress: string
+    packageAddress: string,
+    timestamp: bigint,
+    motionCloseTimestamp: bigint,
+    motions: MembershipManagement.MotionStructOutput[]
   ] & {
     id: bigint;
     nationToRemove: MembershipManagement.NationStructOutput;
@@ -85,19 +103,29 @@ export declare namespace MembershipManagement {
     owner: string;
     proposalAddress: string;
     packageAddress: string;
+    timestamp: bigint;
+    motionCloseTimestamp: bigint;
+    motions: MembershipManagement.MotionStructOutput[];
   };
 
   export type MembershipRemovalRequestStruct = {
     nationToRemove: AddressLike;
     duration: BigNumberish;
     owner: AddressLike;
+    maxOpenDuration: BigNumberish;
   };
 
   export type MembershipRemovalRequestStructOutput = [
     nationToRemove: string,
     duration: bigint,
-    owner: string
-  ] & { nationToRemove: string; duration: bigint; owner: string };
+    owner: string,
+    maxOpenDuration: bigint
+  ] & {
+    nationToRemove: string;
+    duration: bigint;
+    owner: string;
+    maxOpenDuration: bigint;
+  };
 }
 
 export interface MembershipRemovalManagerInterface extends Interface {

@@ -20,11 +20,13 @@ library MembershipManagement {
         uint groupId;
         uint duration;
         address owner;
+        uint maxOpenDuration;
     }
     struct MembershipRemovalRequest {
         address nationToRemove;
         uint duration;
         address owner;
+        uint maxOpenDuration;
     }
     struct Nation {
         address id;
@@ -36,10 +38,16 @@ library MembershipManagement {
         uint timestamp;
         uint proposalId;
     }
+    struct Motion{
+        address member;
+        uint timestamp;
+        uint proposalId;
+    }
     struct Council{
         string name;
         bytes32 role;
         VotingParameters votingParameters;
+        MotionRules motionRules;
         CouncilGroup[] groups;
     }
     struct CouncilGroup{
@@ -58,19 +66,22 @@ library MembershipManagement {
         uint sumNumerator;
         bool avgVotes;
     }
+    struct MotionRules{
+        uint numberOfSeconds;
+        bool requiresMajority;
+        bool onlyWithinOwnGroup;
+        bool disabled;
+        bytes32[] councilsThatCanMotion;
+    }
     struct ChangeVotingParametersRole{
         bytes32 council;
         VotingParameters parameters;
-    }
-    struct c{
-        uint id;
-        uint duration;
-        address owner;
     }
     struct ChangeVotingParametersRequest{
         ChangeVotingParametersRole[] parameters;
         uint duration;
         address owner;
+        uint maxOpenDuration;
     }
     struct ChangeVotingParametersResponse{
         uint id;
@@ -83,6 +94,9 @@ library MembershipManagement {
         address owner;
         address proposalAddress;
         address packageAddress;
+        uint timestamp;
+        uint motionCloseTimestamp;
+        Motion[] motions;
     }
     struct MembershipProposalResponse{
         uint id;
@@ -98,6 +112,9 @@ library MembershipManagement {
         address owner;
         address proposalAddress;
         address packageAddress;
+        uint timestamp;
+        uint motionCloseTimestamp;
+        Motion[] motions;
     }
     struct MembershipRemovalResponse{
         uint id;
@@ -110,10 +127,14 @@ library MembershipManagement {
         address owner;
         address proposalAddress;
         address packageAddress;
+        uint timestamp;
+        uint motionCloseTimestamp;
+        Motion[] motions;
     }
     struct ProposalPackageRequest{
         uint duration;
         address owner;
+        uint maxOpenDuration;
     }
     struct ProposalPackageResponse{
         uint id;
@@ -125,6 +146,22 @@ library MembershipManagement {
         bool votingStarted;
         address owner;
         address proposalAddress;
+        uint timestamp;
+        uint motionCloseTimestamp;
+        Motion[] motions;
+    }
+    struct ProposalResponse{
+        uint id;
+        Vote[] votes;
+        uint duration;
+        ApprovalStatus status;
+        bool isProcessing;
+        bool votingStarted;
+        address owner;
+        address proposalAddress;
+        uint timestamp;
+        uint motionCloseTimestamp;
+        Motion[] motions;
     }
     struct Doc{
         string  title;
@@ -154,6 +191,8 @@ library MembershipManagement {
     }
     enum ApprovalStatus {
         Entered,
+        Motioning,
+        MotionFailure,
         Pending,
         Ready,
         Approved,

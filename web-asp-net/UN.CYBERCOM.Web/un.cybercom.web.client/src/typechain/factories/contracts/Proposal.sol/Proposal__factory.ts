@@ -26,7 +26,22 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "CannotMotion",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ClosedForDocumentAdd",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidStatus",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MotioningClosed",
     type: "error",
   },
   {
@@ -48,6 +63,25 @@ const _abi = [
     inputs: [],
     name: "VotingNotStarted",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "proposalId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "member",
+        type: "address",
+      },
+    ],
+    name: "Motioned",
+    type: "event",
   },
   {
     anonymous: false,
@@ -225,6 +259,145 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getMotions",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "member",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "proposalId",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct MembershipManagement.Motion[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRawProposal",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "id",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "member",
+                type: "address",
+              },
+              {
+                internalType: "bool",
+                name: "voteCasted",
+                type: "bool",
+              },
+              {
+                internalType: "uint256",
+                name: "timestamp",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "proposalId",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct MembershipManagement.Vote[]",
+            name: "votes",
+            type: "tuple[]",
+          },
+          {
+            internalType: "uint256",
+            name: "duration",
+            type: "uint256",
+          },
+          {
+            internalType: "enum MembershipManagement.ApprovalStatus",
+            name: "status",
+            type: "uint8",
+          },
+          {
+            internalType: "bool",
+            name: "isProcessing",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "votingStarted",
+            type: "bool",
+          },
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "proposalAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "motionCloseTimestamp",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "member",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "timestamp",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "proposalId",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct MembershipManagement.Motion[]",
+            name: "motions",
+            type: "tuple[]",
+          },
+        ],
+        internalType: "struct MembershipManagement.ProposalResponse",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getThreshold",
     outputs: [
       {
@@ -292,6 +465,45 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "member",
+        type: "address",
+      },
+    ],
+    name: "motion",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "motionClosesTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "motionDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -371,6 +583,13 @@ const _abi = [
       },
     ],
     name: "setRandomNumber",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "startMotioning",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
